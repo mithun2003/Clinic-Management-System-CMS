@@ -1,0 +1,18 @@
+
+# NetBeans specific
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Ignore compiled class files
+*.class
+
+# Ignore logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
