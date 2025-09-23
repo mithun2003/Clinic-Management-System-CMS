@@ -2,7 +2,6 @@ package cms.view.superadmin;
 
 import cms.model.entities.SuperAdmin;
 import cms.utils.TitleBarManager;
-import cms.utils.TitleBarManager;
 import javax.swing.*;
 import java.awt.*;
 
@@ -37,7 +36,6 @@ public class SuperAdminDashboardView extends JFrame {
 //        lblTitle.setForeground(Color.WHITE);
 //        lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
 //        titleBar.add(lblTitle, BorderLayout.WEST);
-
 //        // --- Window Control Buttons Panel ---
 //        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 //        controlPanel.setOpaque(false); // Make it transparent
@@ -79,7 +77,7 @@ public class SuperAdminDashboardView extends JFrame {
 //        controlPanel.add(btnMaximize);
 //        controlPanel.add(btnClose);
 //
-////        JButton btnClose = new JButton("X");
+        ////        JButton btnClose = new JButton("X");
 ////        btnClose.setFocusPainted(false);
 ////        btnClose.setBorderPainted(false);
 ////        btnClose.setFont(new Font("Arial", Font.BOLD, 14));
@@ -91,8 +89,6 @@ public class SuperAdminDashboardView extends JFrame {
 
 JPanel titleBar = TitleBarManager.createTitleBar(this, "Super Admin Dashboard - " + sa.getName());
         add(titleBar, BorderLayout.NORTH);
-
- 
 
         // === Sidebar ===
         JPanel sidebar = new JPanel();
@@ -141,9 +137,12 @@ JPanel titleBar = TitleBarManager.createTitleBar(this, "Super Admin Dashboard - 
         });
         btnManageClinics.addActionListener(e -> {
             cardLayout.show(contentPanel, "ManageClinics");
-            clinicPanel.refreshClinics();
+            clinicPanel.refreshClinics(1);
         });
-        btnReports.addActionListener(e -> cardLayout.show(contentPanel, "Reports"));
+        btnReports.addActionListener(e -> {
+            cardLayout.show(contentPanel, "Reports");
+            reportsPanel.loadReportData();
+        });
         btnLogout.addActionListener(e -> {
             int choice = JOptionPane.showConfirmDialog(
                     this, "Are you sure you want to log out?",

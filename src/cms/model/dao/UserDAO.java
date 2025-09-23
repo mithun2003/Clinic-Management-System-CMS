@@ -53,4 +53,20 @@ public class UserDAO {
         }
         return 0;
     }
+    
+    // In UserDAO.java
+public void addUser(User user) {
+    String sql = "INSERT INTO users (clinic_id, name, username, password, role) VALUES (?, ?, ?, ?, ?)";
+    try (Connection con = DBConnection.getConnection();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+        pst.setInt(1, user.getClinicId());
+        pst.setString(2, user.getName());
+        pst.setString(3, user.getUsername());
+        pst.setString(4, user.getPassword()); // Should already be hashed
+        pst.setString(5, user.getRole());
+        pst.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }

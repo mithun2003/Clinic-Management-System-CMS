@@ -104,7 +104,7 @@ public class SuperAdminLoginView extends JFrame {
 
         SuperAdmin sa = controller.login(username, password);
         if (sa != null) {
-            JOptionPane.showMessageDialog(this, "Super Admin Login Successful!");
+//            JOptionPane.showMessageDialog(this, "Super Admin Login Successful!");
             new SuperAdminDashboardView(sa).setVisible(true);
             dispose();
         } else {

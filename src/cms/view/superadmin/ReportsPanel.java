@@ -18,33 +18,102 @@ import java.util.Map;
 public class ReportsPanel extends JPanel {
 
     private final ReportDAO reportDAO;
+    private boolean isDataLoaded = false;
 
+    
+    /**
+     * Constructor: Sets up the initial layout and DAO.
+     * Does NOT load data.
+     */
     public ReportsPanel() {
         this.reportDAO = new ReportDAO();
-        setLayout(new GridLayout(2, 2, 20, 20)); // A 2x2 grid for reports
+
+        // Set up the basic panel properties
+        setLayout(new GridLayout(2, 2, 20, 20));
         setBorder(new EmptyBorder(20, 20, 20, 20));
         setBackground(Color.WHITE);
 
-        // --- Report 1: Clinic by Patient Volume (Bar Chart) ---
-        ChartPanel patientVolumeChart = createPatientVolumeChart();
-        patientVolumeChart.setBorder(BorderFactory.createTitledBorder("Patient Count per Clinic"));
-        add(patientVolumeChart);
-
-        // --- Report 2: User Role Distribution (Pie Chart) ---
-        ChartPanel userRoleChart = createUserRoleChart();
-        userRoleChart.setBorder(BorderFactory.createTitledBorder("Staff Distribution by Role"));
-        add(userRoleChart);
-
-        // --- Report 3: Patient Growth Over Time (Line Chart) ---
-        ChartPanel patientGrowthChart = createPatientGrowthChart();
-        patientGrowthChart.setBorder(BorderFactory.createTitledBorder("New Patients per Month"));
-        add(patientGrowthChart);
+        // Display a loading message initially
+        showLoadingState();
+    }
+    
+      /**
+     * Displays a simple "Loading..." message.
+     */
+    private void showLoadingState() {
+        this.removeAll(); // Clear any existing components
+        setLayout(new BorderLayout());
+        JLabel loadingLabel = new JLabel("Click 'Reports' to load data...", SwingConstants.CENTER);
+        loadingLabel.setFont(new Font("Segoe UI", Font.ITALIC, 18));
+        loadingLabel.setForeground(Color.GRAY);
+        add(loadingLabel, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
+    }
+    
+     /**
+     * Public method to be called when the panel is shown.
+     * It fetches data and builds the charts.
+     */
+    public void loadReportData() {
+        // Optional: If data is already loaded, don't reload unless necessary.
+        // For simplicity, we'll reload every time for now. A more advanced
+        // implementation could check a timestamp.
         
-        // --- Placeholder for a 4th report ---
-        JPanel placeholder = new JPanel();
-        placeholder.setBorder(BorderFactory.createTitledBorder("Future Report"));
-        placeholder.setBackground(Color.WHITE);
-        add(placeholder);
+        // Use a background thread for database calls to keep the UI responsive
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            private ChartPanel patientVolumeChart;
+            private ChartPanel userRoleChart;
+            private ChartPanel patientGrowthChart;
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                // This happens on a background thread
+                patientVolumeChart = createPatientVolumeChart();
+                userRoleChart = createUserRoleChart();
+                patientGrowthChart = createPatientGrowthChart();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                // This happens on the Event Dispatch Thread (EDT) after doInBackground is finished
+                try {
+                    // This is where you update the UI
+                    removeAll();
+                    setLayout(new GridLayout(2, 2, 20, 20));
+
+                    patientVolumeChart.setBorder(BorderFactory.createTitledBorder("Patient Count per Clinic"));
+                    add(patientVolumeChart);
+
+                    userRoleChart.setBorder(BorderFactory.createTitledBorder("Staff Distribution by Role"));
+                    add(userRoleChart);
+
+                    patientGrowthChart.setBorder(BorderFactory.createTitledBorder("New Patients per Month"));
+                    add(patientGrowthChart);
+
+                    JPanel placeholder = new JPanel();
+                    placeholder.setBorder(BorderFactory.createTitledBorder("Future Report"));
+                    placeholder.setBackground(Color.WHITE);
+                    add(placeholder);
+
+                    revalidate();
+                    repaint();
+                    isDataLoaded = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Show an error message on the panel if something went wrong
+                    removeAll();
+                    setLayout(new BorderLayout());
+                    JLabel errorLabel = new JLabel("Error loading reports. Please try again.", SwingConstants.CENTER);
+                    errorLabel.setForeground(Color.RED);
+                    add(errorLabel, BorderLayout.CENTER);
+                    revalidate();
+                    repaint();
+                }
+            }
+        };
+        worker.execute(); // Start the background task
     }
 
     private ChartPanel createPatientVolumeChart() {
@@ -109,29 +178,29 @@ public class ReportsPanel extends JPanel {
     }
 
     // Call this method when navigating to the reports page to get fresh data
-    public void refreshData() {
-        // For now, we are creating new charts on load.
-        // A more advanced implementation would update the datasets of existing charts.
-        this.removeAll();
-        // Re-add all components
-        ChartPanel patientVolumeChart = createPatientVolumeChart();
-        patientVolumeChart.setBorder(BorderFactory.createTitledBorder("Patient Count per Clinic"));
-        add(patientVolumeChart);
-
-        ChartPanel userRoleChart = createUserRoleChart();
-        userRoleChart.setBorder(BorderFactory.createTitledBorder("Staff Distribution by Role"));
-        add(userRoleChart);
-
-        ChartPanel patientGrowthChart = createPatientGrowthChart();
-        patientGrowthChart.setBorder(BorderFactory.createTitledBorder("New Patients per Month"));
-        add(patientGrowthChart);
-        
-        JPanel placeholder = new JPanel();
-        placeholder.setBorder(BorderFactory.createTitledBorder("Future Report"));
-        placeholder.setBackground(Color.WHITE);
-        add(placeholder);
-        
-        this.revalidate();
-        this.repaint();
-    }
+//    public void refreshData() {
+//        // For now, we are creating new charts on load.
+//        // A more advanced implementation would update the datasets of existing charts.
+//        this.removeAll();
+//        // Re-add all components
+//        ChartPanel patientVolumeChart = createPatientVolumeChart();
+//        patientVolumeChart.setBorder(BorderFactory.createTitledBorder("Patient Count per Clinic"));
+//        add(patientVolumeChart);
+//
+//        ChartPanel userRoleChart = createUserRoleChart();
+//        userRoleChart.setBorder(BorderFactory.createTitledBorder("Staff Distribution by Role"));
+//        add(userRoleChart);
+//
+//        ChartPanel patientGrowthChart = createPatientGrowthChart();
+//        patientGrowthChart.setBorder(BorderFactory.createTitledBorder("New Patients per Month"));
+//        add(patientGrowthChart);
+//        
+//        JPanel placeholder = new JPanel();
+//        placeholder.setBorder(BorderFactory.createTitledBorder("Future Report"));
+//        placeholder.setBackground(Color.WHITE);
+//        add(placeholder);
+//        
+//        this.revalidate();
+//        this.repaint();
+//    }
 }

@@ -10,21 +10,35 @@ import java.util.List;
 public class ClinicDAO {
 
     // Add new clinic
-    public void addClinic(Clinic clinic) {
+    public int addClinic(Clinic clinic) {
         String sql = "INSERT INTO clinics (code, name, email, phone, address, status) VALUES (?,?,?,?,?,?)";
-        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection(); // We need to get the generated ID back
+                 PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pst.setString(1, clinic.getClinicCode());
             pst.setString(2, clinic.getClinicName());
             pst.setString(3, clinic.getEmail());
             pst.setString(4, clinic.getPhone());
             pst.setString(5, clinic.getAddress());
-            pst.setString(6, clinic.getStatus() != null ? clinic.getStatus() : "Active"); // default Active
-            pst.executeUpdate();
+            pst.setString(6, clinic.getStatus() != null ? clinic.getStatus() : "Active");
 
+            int affectedRows = pst.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1); // Return the new clinic_id
+                    }
+                }
+            }
+        } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+            // This exception is thrown for duplicate unique keys (like code or email)
+            System.err.println("Duplicate entry error: " + e.getMessage());
+            return -2; // Special code for duplicate entry
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return -1; // General failure
     }
 
     // Update clinic details
@@ -181,5 +195,25 @@ public class ClinicDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    /**
+     * Checks if a clinic has at least one user with the 'ADMIN' role.
+     *
+     * @param clinicId The ID of the clinic to check.
+     * @return true if an admin exists, false otherwise.
+     */
+    public boolean hasAdmin(int clinicId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE clinic_id = ? AND role = 'ADMIN'";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setInt(1, clinicId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
