@@ -1,5 +1,6 @@
-package cms.view.superadmin;
+package cms.view.components;
 
+import cms.utils.FontUtils;
 import javax.swing.*;
 import java.awt.*;
 
@@ -37,17 +38,18 @@ public class SidebarButton extends JButton {
         setFocusPainted(false);
         setBorderPainted(false);
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        Font baseFont = new Font("Segoe UI Emoji", Font.BOLD, 18);
 
-        // Add letter spacing (tracking)
-        java.util.Map attributes = baseFont.getAttributes();
-        attributes.put(java.awt.font.TextAttribute.TRACKING, 0.05f); // 5% spacing
-        setFont(baseFont.deriveFont(attributes));
+        Font baseFont = FontUtils.getEmojiFont(Font.BOLD, 18);
+        setFont(FontUtils.applyLetterSpacing(baseFont, 0.05f));
 
         // Alignment
         switch (textAlign) {
-            case CENTER ->
+            case CENTER ->{
                 setHorizontalAlignment(SwingConstants.CENTER);
+                setAlignmentX(Component.CENTER_ALIGNMENT);
+                break;
+            }
+                
             case RIGHT ->
                 setHorizontalAlignment(SwingConstants.RIGHT);
             default ->
@@ -94,13 +96,7 @@ public class SidebarButton extends JButton {
                 }
             });
 
-            addActionListener(e -> {
-//                System.out.println(this);
-//                if (selectedButton != null && selectedButton != this) {
-//                    selectedButton.repaint();
-//                }
-//                selectedButton = this;
-//                repaint();
+            addActionListener(_ -> {
                 selectInSidebar();
             });
         }

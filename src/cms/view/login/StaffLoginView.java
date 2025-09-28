@@ -1,34 +1,38 @@
 package cms.view.login;
 
-import cms.controller.SuperAdminAuthController;
-import cms.model.entities.SuperAdmin;
+import cms.controller.AuthController;
+import cms.model.entities.User;
 import cms.utils.TitleBarManager;
 import cms.view.components.PlaceholderTextField;
-import cms.view.superadmin.SuperAdminDashboardView;
+import cms.view.clinic.admin.ClinicAdminDashboard;
+//import cms.view.admin.ClinicAdminDashboardView;
+// import cms.view.doctor.DoctorDashboardView;
+// import cms.view.receptionist.ReceptionistDashboardView;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SuperAdminLoginView extends JFrame {
+public class StaffLoginView extends JFrame {
 
     // --- UI Components ---
+    private PlaceholderTextField clinicCodeField;
     private PlaceholderTextField usernameField;
     private PlaceholderTextField passwordField;
     private JButton btnLogin;
 
     // --- Controller ---
-    private final SuperAdminAuthController controller;
+    private final AuthController controller;
 
     /**
-     * Constructor for the Super Admin Login window.
-     * It orchestrates the initialization of the frame, components, and listeners.
+     * Constructor: Orchestrates the initialization of the frame, components,
+     * and listeners.
      */
-    public SuperAdminLoginView() {
-        this.controller = new SuperAdminAuthController();
-        
+    public StaffLoginView() {
+        this.controller = new AuthController();
+
         initializeFrame();
         createAndPlaceComponents();
-        setupEventListeners();
+        initListeners();
     }
 
     /**
@@ -37,8 +41,8 @@ public class SuperAdminLoginView extends JFrame {
     private void initializeFrame() {
         setUndecorated(true);
         setSize(1000, 665);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
     }
 
@@ -46,8 +50,8 @@ public class SuperAdminLoginView extends JFrame {
      * Creates all UI components and arranges them in the frame's layout.
      */
     private void createAndPlaceComponents() {
-        // --- Reusable Custom Title Bar ---
-        JPanel titleBar = TitleBarManager.createTitleBar(this, "Super Admin Login");
+        // --- Custom Title Bar ---
+        JPanel titleBar = TitleBarManager.createTitleBar(this, "Clinic Staff Login");
         add(titleBar, BorderLayout.NORTH);
 
         // --- Main Content Panel (for centering) ---
@@ -57,27 +61,30 @@ public class SuperAdminLoginView extends JFrame {
 
         // --- Login Form Panel ---
         JPanel loginFormPanel = new JPanel(new GridBagLayout());
-        loginFormPanel.setPreferredSize(new Dimension(350, 250));
+        loginFormPanel.setPreferredSize(new Dimension(350, 300));
         loginFormPanel.setOpaque(false);
-
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(10, 0, 10, 0);
 
-        // --- Username and Password Fields ---
-        this.usernameField = new PlaceholderTextField("Enter Username", "👤");
+        // --- Input Fields ---
+        this.clinicCodeField = new PlaceholderTextField("Enter Clinic Code", "🏥");
         gbc.gridy = 0;
+        loginFormPanel.add(clinicCodeField, gbc);
+
+        this.usernameField = new PlaceholderTextField("Enter Username", "👤");
+        gbc.gridy = 1;
         loginFormPanel.add(usernameField, gbc);
 
         this.passwordField = new PlaceholderTextField("Enter Password", "🔒", true);
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         loginFormPanel.add(passwordField, gbc);
 
         // --- Login Button ---
         this.btnLogin = new JButton("Login");
         styleLoginButton(btnLogin);
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -91,16 +98,17 @@ public class SuperAdminLoginView extends JFrame {
     /**
      * Attaches all event listeners for this view.
      */
-    private void setupEventListeners() {
-        btnLogin.addActionListener(_ -> doLogin());
+    private void initListeners() {
+        btnLogin.addActionListener(e -> doLogin());
     }
 
     /**
      * Applies a modern, consistent style to the login button.
+     *
      * @param button The JButton to be styled.
      */
     private void styleLoginButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
         button.setForeground(Color.WHITE);
         button.setBackground(new Color(0, 102, 102));
         button.setFocusPainted(false);
@@ -108,13 +116,12 @@ public class SuperAdminLoginView extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(150, 45));
 
+        // Add hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(0, 128, 128));
             }
 
-            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(new Color(0, 102, 102));
             }
@@ -122,25 +129,42 @@ public class SuperAdminLoginView extends JFrame {
     }
 
     /**
-     * Handles the login logic when the login button is clicked.
+     * Handles the login logic and routes the user to the correct dashboard.
      */
     private void doLogin() {
+        String clinicCode = clinicCodeField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Username and Password are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
+        if (clinicCode.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        SuperAdmin sa = controller.login(username, password);
+        User user = controller.login(clinicCode, username, password);
 
-        if (sa != null) {
-            new SuperAdminDashboardView(sa).setVisible(true);
-            dispose();
+        if (user != null) {
+            // Route to the correct dashboard based on the user's role
+            switch (user.getRole()) {
+                case "ADMIN":
+                    new ClinicAdminDashboard(user).setVisible(true);
+//                    JOptionPane.showMessageDialog(this, "Dashboard coming soon!");
+                    break;
+                case "DOCTOR":
+                    // Replace with: new DoctorDashboardView(user).setVisible(true);
+                    JOptionPane.showMessageDialog(this, "Doctor Dashboard is under construction.");
+                    break;
+                case "RECEPTIONIST":
+                    // Replace with: new ReceptionistDashboardView(user).setVisible(true);
+                    JOptionPane.showMessageDialog(this, "Receptionist Dashboard is under construction.");
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Login successful, but no dashboard is available for your role.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+            dispose(); // Close the login window
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid credentials. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid credentials or the clinic is inactive. Please try again.",
+                    "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 }

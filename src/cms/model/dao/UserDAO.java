@@ -15,25 +15,26 @@ public class UserDAO {
                 + "FROM users u "
                 + "JOIN clinics c ON u.clinic_id = c.clinic_id "
                 + "WHERE c.code = ? "
-                + "AND u.username = ? "
-                + "AND u.password = ?";
+                + "AND u.username = ? ";
 
         try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
 
             pst.setString(1, clinicCode);
             pst.setString(2, username);
-            pst.setString(3, PasswordUtils.hashPassword(password));
 
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getInt("user_id"));
-                user.setClinicId(rs.getInt("clinic_id"));
-                user.setName(rs.getString("name"));
-                user.setUsername(rs.getString("username"));
-                user.setRole(rs.getString("role"));
-                return user;
+                String storedHash = rs.getString("password");
+                if (PasswordUtils.checkPassword(password, storedHash)) {
+                    User user = new User();
+                    user.setUserId(rs.getInt("user_id"));
+                    user.setClinicId(rs.getInt("clinic_id"));
+                    user.setName(rs.getString("name"));
+                    user.setUsername(rs.getString("username"));
+                    user.setRole(rs.getString("role"));
+                    return user;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,20 +54,19 @@ public class UserDAO {
         }
         return 0;
     }
-    
+
     // In UserDAO.java
-public void addUser(User user) {
-    String sql = "INSERT INTO users (clinic_id, name, username, password, role) VALUES (?, ?, ?, ?, ?)";
-    try (Connection con = DBConnection.getConnection();
-         PreparedStatement pst = con.prepareStatement(sql)) {
-        pst.setInt(1, user.getClinicId());
-        pst.setString(2, user.getName());
-        pst.setString(3, user.getUsername());
-        pst.setString(4, user.getPassword()); // Should already be hashed
-        pst.setString(5, user.getRole());
-        pst.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
+    public void addUser(User user) {
+        String sql = "INSERT INTO users (clinic_id, name, username, password, role) VALUES (?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setInt(1, user.getClinicId());
+            pst.setString(2, user.getName());
+            pst.setString(3, user.getUsername());
+            pst.setString(4, user.getPassword()); // Should already be hashed
+            pst.setString(5, user.getRole());
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 }

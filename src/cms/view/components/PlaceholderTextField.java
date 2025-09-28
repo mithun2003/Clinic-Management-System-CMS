@@ -1,5 +1,6 @@
-package cms.utils;
+package cms.view.components;
 
+import cms.utils.FontUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
@@ -34,7 +35,7 @@ public class PlaceholderTextField extends JPanel {
         // --- Icon Label (using text/emoji) ---
         this.iconLabel = new JLabel(iconText);
         // Use an emoji-compatible font for the icon
-        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        iconLabel.setFont(FontUtils.getEmojiFont(Font.PLAIN, 18));
         iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
         iconLabel.setForeground(Color.GRAY);
         add(iconLabel, BorderLayout.WEST);
@@ -47,7 +48,7 @@ public class PlaceholderTextField extends JPanel {
         }
         textComponent.setOpaque(false);
         textComponent.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 8));
-        textComponent.setFont(new Font("Arial", Font.PLAIN, 16));
+        textComponent.setFont(FontUtils.getUiFont(Font.PLAIN, 16));
         add(textComponent, BorderLayout.CENTER);
 
         // Add placeholder logic

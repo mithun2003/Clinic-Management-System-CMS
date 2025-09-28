@@ -8,7 +8,7 @@ public class TitleBarManager {
     private static int mouseX, mouseY;
 
     /**
-     * Creates a styled, draggable custom title bar for any top-level window (JFrame or JDialog).
+     * Creates a styled, drag able custom title bar for any top-level window (JFrame or JDialog).
      *
      * @param window The Window (JFrame or JDialog) this title bar will be added to.
      * @param title  The text to display in the title bar.
@@ -23,7 +23,7 @@ public class TitleBarManager {
         // --- Title Label ---
         JLabel lblTitle = new JLabel(" " + title);
         lblTitle.setForeground(Color.WHITE);
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTitle.setFont(FontUtils.getUiFont(Font.BOLD, 16));
         titleBar.add(lblTitle, BorderLayout.WEST);
 
         // --- Window Control Buttons Panel ---
@@ -80,7 +80,7 @@ public class TitleBarManager {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(true);
-        btn.setFont(new Font("Segoe UI Symbol", Font.BOLD, 14));
+        btn.setFont(FontUtils.getUiFont(Font.BOLD, 14));
         btn.setBackground(background);
         btn.setForeground(Color.WHITE);
         btn.setMargin(new Insets(0, 15, 0, 15));
