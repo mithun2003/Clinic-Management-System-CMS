@@ -1,6 +1,7 @@
 package cms.view.superadmin;
 
 import cms.model.dao.ReportDAO;
+import cms.utils.FontUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -20,10 +21,8 @@ public class ReportsPanel extends JPanel {
     private final ReportDAO reportDAO;
     private boolean isDataLoaded = false;
 
-    
     /**
-     * Constructor: Sets up the initial layout and DAO.
-     * Does NOT load data.
+     * Constructor: Sets up the initial layout and DAO. Does NOT load data.
      */
     public ReportsPanel() {
         this.reportDAO = new ReportDAO();
@@ -36,30 +35,30 @@ public class ReportsPanel extends JPanel {
         // Display a loading message initially
         showLoadingState();
     }
-    
-      /**
+
+    /**
      * Displays a simple "Loading..." message.
      */
     private void showLoadingState() {
         this.removeAll(); // Clear any existing components
         setLayout(new BorderLayout());
         JLabel loadingLabel = new JLabel("Click 'Reports' to load data...", SwingConstants.CENTER);
-        loadingLabel.setFont(new Font("Segoe UI", Font.ITALIC, 18));
+        loadingLabel.setFont(FontUtils.getUiFont(Font.ITALIC, 18));
         loadingLabel.setForeground(Color.GRAY);
         add(loadingLabel, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
     }
-    
-     /**
-     * Public method to be called when the panel is shown.
-     * It fetches data and builds the charts.
+
+    /**
+     * Public method to be called when the panel is shown. It fetches data and
+     * builds the charts.
      */
     public void loadReportData() {
         // Optional: If data is already loaded, don't reload unless necessary.
         // For simplicity, we'll reload every time for now. A more advanced
         // implementation could check a timestamp.
-        
+
         // Use a background thread for database calls to keep the UI responsive
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             private ChartPanel patientVolumeChart;
@@ -127,15 +126,21 @@ public class ReportsPanel extends JPanel {
                 "Patient Volume by Clinic",
                 "Clinic", "Number of Patients",
                 dataset, PlotOrientation.VERTICAL, true, true, false);
-        
+
         styleChart(barChart);
         return new ChartPanel(barChart);
     }
 
     private ChartPanel createUserRoleChart() {
-        DefaultPieDataset dataset = new DefaultPieDataset();
+        // 1. Specify <String> as the generic type for the keys.
+        DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+
+// 2. Your DAO method already returns a correctly typed Map.
         Map<String, Integer> data = reportDAO.getUserCountByRole();
+
+// 3. The rest of your code now works perfectly and is type-safe.
         for (Map.Entry<String, Integer> entry : data.entrySet()) {
+            // The compiler knows that entry.getKey() is a String and entry.getValue() is a Number.
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
@@ -151,7 +156,7 @@ public class ReportsPanel extends JPanel {
 
         return new ChartPanel(pieChart);
     }
-    
+
     private ChartPanel createPatientGrowthChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         Map<String, Integer> data = reportDAO.getNewPatientsPerMonth();
@@ -163,7 +168,7 @@ public class ReportsPanel extends JPanel {
                 "Monthly Patient Growth",
                 "Month", "Number of New Patients",
                 dataset, PlotOrientation.VERTICAL, true, true, false);
-        
+
         styleChart(lineChart); // Use the same styling as the bar chart
         return new ChartPanel(lineChart);
     }
@@ -176,31 +181,4 @@ public class ReportsPanel extends JPanel {
         plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
         plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
     }
-
-    // Call this method when navigating to the reports page to get fresh data
-//    public void refreshData() {
-//        // For now, we are creating new charts on load.
-//        // A more advanced implementation would update the datasets of existing charts.
-//        this.removeAll();
-//        // Re-add all components
-//        ChartPanel patientVolumeChart = createPatientVolumeChart();
-//        patientVolumeChart.setBorder(BorderFactory.createTitledBorder("Patient Count per Clinic"));
-//        add(patientVolumeChart);
-//
-//        ChartPanel userRoleChart = createUserRoleChart();
-//        userRoleChart.setBorder(BorderFactory.createTitledBorder("Staff Distribution by Role"));
-//        add(userRoleChart);
-//
-//        ChartPanel patientGrowthChart = createPatientGrowthChart();
-//        patientGrowthChart.setBorder(BorderFactory.createTitledBorder("New Patients per Month"));
-//        add(patientGrowthChart);
-//        
-//        JPanel placeholder = new JPanel();
-//        placeholder.setBorder(BorderFactory.createTitledBorder("Future Report"));
-//        placeholder.setBackground(Color.WHITE);
-//        add(placeholder);
-//        
-//        this.revalidate();
-//        this.repaint();
-//    }
 }

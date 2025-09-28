@@ -3,13 +3,13 @@ package cms.view.superadmin;
 import cms.model.entities.User;
 import cms.utils.PasswordUtils;
 import cms.utils.TitleBarManager;
-import cms.utils.PlaceholderTextField;
+import cms.view.components.PlaceholderTextField;
 import javax.swing.*;
 import java.awt.*;
 
 public class CreateAdminDialog extends JDialog {
 
-    private PlaceholderTextField nameField, usernameField, passwordField;
+    private final PlaceholderTextField nameField, usernameField, passwordField;
     private User newAdmin = null; // This will hold the result
 
     public CreateAdminDialog(JFrame parent) {
@@ -21,7 +21,8 @@ public class CreateAdminDialog extends JDialog {
         setLayout(new BorderLayout());
 
         // --- Custom Title Bar ---
-        JPanel titleBar = TitleBarManager.createTitleBar(this, "Create First Clinic Admin");
+        CreateAdminDialog cad = this;
+        JPanel titleBar = TitleBarManager.createTitleBar(cad, "Create First Clinic Admin");
         add(titleBar, BorderLayout.NORTH);
 
         // --- Form Panel ---
@@ -54,7 +55,7 @@ public class CreateAdminDialog extends JDialog {
         // Style button
         btnCreate.setBackground(new Color(0, 102, 102));
         btnCreate.setForeground(Color.WHITE);
-        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCreate.setFont(new Font("Arial", Font.BOLD, 14));
 
         buttonPanel.add(btnCancel);
         buttonPanel.add(btnCreate);
@@ -66,8 +67,8 @@ public class CreateAdminDialog extends JDialog {
         add(formPanel, BorderLayout.CENTER);
 
         // --- Action Listeners ---
-        btnCreate.addActionListener(e -> createAdmin());
-        btnCancel.addActionListener(e -> dispose());
+        btnCreate.addActionListener(_ -> createAdmin());
+        btnCancel.addActionListener(_ -> dispose());
     }
 
     private void createAdmin() {

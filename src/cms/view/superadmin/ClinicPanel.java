@@ -83,7 +83,7 @@ public class ClinicPanel extends JPanel {
      */
     private JPanel createFormPanel() {
         TitledBorder clinicBorder = BorderFactory.createTitledBorder("Clinic Details");
-        clinicBorder.setTitleFont(new Font("Segoe UI", Font.BOLD, 18));
+        clinicBorder.setTitleFont(new Font("Arial", Font.BOLD, 18));
 
         JPanel formPanel = new JPanel(new GridLayout(3, 4, 15, 10)); // Adjusted layout
         formPanel.setBorder(clinicBorder);
@@ -158,12 +158,12 @@ public class ClinicPanel extends JPanel {
 
         // Style the table
         table.setRowHeight(30);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.setForeground(Color.DARK_GRAY);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         // Style the table header
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(0, 102, 102));
         table.getTableHeader().setForeground(Color.WHITE);
         table.getTableHeader().setReorderingAllowed(false);
@@ -199,13 +199,13 @@ public class ClinicPanel extends JPanel {
      */
     private void initListeners() {
         // Pagination listeners
-        btnPrev.addActionListener(e -> {
+        btnPrev.addActionListener(_ -> {
             if (currentPage > 1) {
                 currentPage--;
                 loadClinicsPage(currentPage);
             }
         });
-        btnNext.addActionListener(e -> {
+        btnNext.addActionListener(_ -> {
             if (currentPage < totalPages) {
                 currentPage++;
                 loadClinicsPage(currentPage);
@@ -213,11 +213,11 @@ public class ClinicPanel extends JPanel {
         });
 
         // Button listeners
-        btnAdd.addActionListener(e -> addClinic());
-        btnUpdate.addActionListener(e -> updateClinic());
-        btnDelete.addActionListener(e -> deleteClinic());
-        btnClear.addActionListener(e -> clearForm());
-        btnCreateAdmin.addActionListener(e -> createClinicAdmin());
+        btnAdd.addActionListener(_ -> addClinic());
+        btnUpdate.addActionListener(_ -> updateClinic());
+        btnDelete.addActionListener(_ -> deleteClinic());
+        btnClear.addActionListener(_ -> clearForm());
+        btnCreateAdmin.addActionListener(_ -> createClinicAdmin());
 
         // Table row selection listener
         table.getSelectionModel().addListSelectionListener(event -> {
@@ -443,10 +443,12 @@ public class ClinicPanel extends JPanel {
         // Optional: Add a simple hover effect
         Color darker = color.darker();
         button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(darker);
             }
 
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(color);
             }

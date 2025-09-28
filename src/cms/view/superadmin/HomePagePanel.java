@@ -21,11 +21,11 @@ public class HomePagePanel extends JPanel {
     private static final Dimension NORMAL_CARD_SIZE = new Dimension(240, 180);
     private static final Dimension MAX_CARD_SIZE = new Dimension(545, 200);
 
-    public HomePagePanel(SuperAdmin sa) {
-        this.HomePagePanelLoads(sa);
-    }
+//    public HomePagePanel(SuperAdmin sa) {
+//        this.HomePagePanelLoads(sa);
+//    }
 
-    public void HomePagePanelLoads(SuperAdmin sa) {
+    public HomePagePanel(SuperAdmin sa) {
         this.loggedInSuperAdmin = sa;
         this.clinicDAO = new ClinicDAO();
         this.userDAO = new UserDAO();
