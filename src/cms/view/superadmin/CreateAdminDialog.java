@@ -89,7 +89,7 @@ public class CreateAdminDialog extends JDialog {
         newAdmin.setName(name);
         newAdmin.setUsername(username);
         newAdmin.setPassword(hashedPassword); // Store the HASH
-        newAdmin.setRole("ADMIN");
+        newAdmin.setRole(User.Role.ADMIN);
 
         dispose(); // Close the dialog
     }

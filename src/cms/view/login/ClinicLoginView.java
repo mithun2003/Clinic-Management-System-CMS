@@ -1,35 +1,32 @@
 package cms.view.login;
 
 import cms.controller.AuthController;
+import cms.controller.AuthResult;
 import cms.model.entities.User;
 import cms.utils.TitleBarManager;
 import cms.view.components.PlaceholderTextField;
-import cms.view.clinic.admin.ClinicAdminDashboard;
-//import cms.view.admin.ClinicAdminDashboardView;
+import cms.view.clinic.admin.Dashboard;
 // import cms.view.doctor.DoctorDashboardView;
 // import cms.view.receptionist.ReceptionistDashboardView;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class StaffLoginView extends JFrame {
-
+public class ClinicLoginView extends JFrame {
     // --- UI Components ---
     private PlaceholderTextField clinicCodeField;
     private PlaceholderTextField usernameField;
     private PlaceholderTextField passwordField;
     private JButton btnLogin;
-
     // --- Controller ---
     private final AuthController controller;
 
     /**
-     * Constructor: Orchestrates the initialization of the frame, components,
-     * and listeners.
+     * Constructor: Orchestrates the initialization of the frame, components, and
+     * listeners.
      */
-    public StaffLoginView() {
+    public ClinicLoginView() {
         this.controller = new AuthController();
-
         initializeFrame();
         createAndPlaceComponents();
         initListeners();
@@ -53,12 +50,10 @@ public class StaffLoginView extends JFrame {
         // --- Custom Title Bar ---
         JPanel titleBar = TitleBarManager.createTitleBar(this, "Clinic Staff Login");
         add(titleBar, BorderLayout.NORTH);
-
         // --- Main Content Panel (for centering) ---
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(Color.WHITE);
         add(mainPanel, BorderLayout.CENTER);
-
         // --- Login Form Panel ---
         JPanel loginFormPanel = new JPanel(new GridBagLayout());
         loginFormPanel.setPreferredSize(new Dimension(350, 300));
@@ -67,20 +62,16 @@ public class StaffLoginView extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(10, 0, 10, 0);
-
         // --- Input Fields ---
         this.clinicCodeField = new PlaceholderTextField("Enter Clinic Code", "🏥");
         gbc.gridy = 0;
         loginFormPanel.add(clinicCodeField, gbc);
-
         this.usernameField = new PlaceholderTextField("Enter Username", "👤");
         gbc.gridy = 1;
         loginFormPanel.add(usernameField, gbc);
-
         this.passwordField = new PlaceholderTextField("Enter Password", "🔒", true);
         gbc.gridy = 2;
         loginFormPanel.add(passwordField, gbc);
-
         // --- Login Button ---
         this.btnLogin = new JButton("Login");
         styleLoginButton(btnLogin);
@@ -90,7 +81,6 @@ public class StaffLoginView extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(20, 0, 10, 0);
         loginFormPanel.add(btnLogin, gbc);
-
         // Add the final form to the centering panel
         mainPanel.add(loginFormPanel);
     }
@@ -98,9 +88,7 @@ public class StaffLoginView extends JFrame {
     /**
      * Attaches all event listeners for this view.
      */
-    private void initListeners() {
-        btnLogin.addActionListener(e -> doLogin());
-    }
+    private void initListeners() { btnLogin.addActionListener(_ -> doLogin()); }
 
     /**
      * Applies a modern, consistent style to the login button.
@@ -115,16 +103,13 @@ public class StaffLoginView extends JFrame {
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(150, 45));
-
         // Add hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 128, 128));
-            }
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) { button.setBackground(new Color(0, 128, 128)); }
 
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0, 102, 102));
-            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) { button.setBackground(new Color(0, 102, 102)); }
         });
     }
 
@@ -135,36 +120,27 @@ public class StaffLoginView extends JFrame {
         String clinicCode = clinicCodeField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
-
         if (clinicCode.isEmpty() || username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
-        User user = controller.login(clinicCode, username, password);
-
-        if (user != null) {
+        AuthResult result = controller.login(clinicCode, username, password);
+        if (result.isSuccess()) {
+            User user = result.getUser();
             // Route to the correct dashboard based on the user's role
-            switch (user.getRole()) {
-                case "ADMIN":
-                    new ClinicAdminDashboard(user).setVisible(true);
-//                    JOptionPane.showMessageDialog(this, "Dashboard coming soon!");
-                    break;
-                case "DOCTOR":
-                    // Replace with: new DoctorDashboardView(user).setVisible(true);
+            switch (user.getRole().name()) {
+            case "ADMIN" -> new Dashboard(user).setVisible(true);
+            case "DOCTOR" -> // Replace with: new DoctorDashboardView(user).setVisible(true);
                     JOptionPane.showMessageDialog(this, "Doctor Dashboard is under construction.");
-                    break;
-                case "RECEPTIONIST":
-                    // Replace with: new ReceptionistDashboardView(user).setVisible(true);
+            case "RECEPTIONIST" -> // Replace with: new ReceptionistDashboardView(user).setVisible(true);
                     JOptionPane.showMessageDialog(this, "Receptionist Dashboard is under construction.");
-                    break;
-                default:
-                    JOptionPane.showMessageDialog(this, "Login successful, but no dashboard is available for your role.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            default -> JOptionPane.showMessageDialog(this,
+                    "Login successful, but no dashboard is available for your role.", "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
             }
             dispose(); // Close the login window
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid credentials or the clinic is inactive. Please try again.",
-                    "Login Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, result.getErrorMessage(), "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

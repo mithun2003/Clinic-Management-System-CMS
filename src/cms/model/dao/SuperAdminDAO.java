@@ -2,6 +2,8 @@ package cms.model.dao;
 
 import cms.model.database.DBConnection;
 import cms.model.entities.SuperAdmin;
+import cms.model.entities.User;
+import cms.utils.LoggerUtil;
 import cms.utils.PasswordUtils;
 
 import java.sql.Connection;
@@ -31,8 +33,26 @@ public class SuperAdminDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LoggerUtil.logError("Failed to validate Super Admin login for username: " + username, e);
         }
         return null;
+    }
+
+    public void addAdmin(User user) {
+        String sql = "INSERT INTO users (clinic_id, name, username, password, role) VALUES (?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setInt(1, user.getClinicId());
+            pst.setString(2, user.getName());
+            pst.setString(3, user.getUsername());
+            pst.setString(4, user.getPassword()); // Should already be hashed
+            pst.setString(5, user.getRole().name());
+            pst.executeUpdate();
+        } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+            // This is a specific, expected error (duplicate username), so we log it as a warning.
+            LoggerUtil.logWarning("Attempted to insert a duplicate username: " + user.getUsername() + " for clinic ID: " + user.getClinicId());
+        } catch (Exception e) {
+            LoggerUtil.logError("Failed to add user: " + user.getUsername(), e);
+
+        }
     }
 }

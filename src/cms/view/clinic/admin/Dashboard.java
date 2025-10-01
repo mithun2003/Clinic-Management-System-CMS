@@ -3,23 +3,24 @@ package cms.view.clinic.admin; // Or your correct package
 import cms.model.entities.User;
 import cms.view.components.DashboardTemplate;
 import cms.view.components.SidebarButton;
-import cms.view.login.StaffLoginView;
-
+import cms.view.login.ClinicLoginView;
 import javax.swing.*;
-import java.awt.*;
 
-public class ClinicAdminDashboard extends DashboardTemplate {
+public class Dashboard extends DashboardTemplate {
 
     // --- Components specific to this dashboard ---
-    private SidebarButton btnHome, btnManageStaff, btnReports;
+    private SidebarButton btnHome, btnManageStaff, btnReports, btnSettings;
+
     // We'll declare the panels as fields so they can be accessed in listeners
-    // private ClinicHomePagePanel homePanel; // A home page specific to the clinic admin
-    // private StaffPanel staffPanel;
+    private HomePage homePanel; // A home page specific to the clinic admin
+    private StaffPage staffPanel;
+    private ReportPage reportPanel;
+    private SettingsPage settingsPanel;
 
     // --- State ---
     private final User loggedInAdmin;
 
-    public ClinicAdminDashboard(User admin) {
+    public Dashboard(User admin) {
         // Step 1: The parent constructor is called implicitly first.
         // It builds the empty JFrame shell with an empty sidebar and content panel.
 
@@ -38,11 +39,12 @@ public class ClinicAdminDashboard extends DashboardTemplate {
         btnHome = new SidebarButton("🏠 Home");
         btnManageStaff = new SidebarButton("👥 Manage Staff");
         btnReports = new SidebarButton("📊 View Reports");
-//        btnLogout = new SidebarButton("🚪 Logout", true);
+        btnSettings = new SidebarButton("⚙️ Settings");
 
         mainNavPanel.add(btnHome);
         mainNavPanel.add(btnManageStaff);
         mainNavPanel.add(btnReports);
+        mainNavPanel.add(btnSettings);
     }
 
     @Override
@@ -50,46 +52,50 @@ public class ClinicAdminDashboard extends DashboardTemplate {
         // This method populates the 'contentPanel' created by the template.
         // It's now safe to use 'loggedInAdmin' because this runs after the constructor has set it.
 
-        // homePanel = new ClinicHomePagePanel(loggedInAdmin);
-        // staffPanel = new StaffPanel(loggedInAdmin.getClinicId());
-        // Using placeholders for now
-        JLabel homePlaceholder = new JLabel("Clinic Admin Home Page - Welcome, " + loggedInAdmin.getName(), SwingConstants.CENTER);
-        JLabel staffPlaceholder = new JLabel("Staff Management Panel will go here.", SwingConstants.CENTER);
-        JLabel reportsPlaceholder = new JLabel("Clinic Reports Panel will go here.", SwingConstants.CENTER);
+        homePanel = new HomePage(loggedInAdmin);
+        staffPanel = new StaffPage(loggedInAdmin.getClinicId());
+        reportPanel = new ReportPage(loggedInAdmin);
+        settingsPanel = new SettingsPage(loggedInAdmin);
 
-        contentPanel.add(homePlaceholder, "Home");
-        contentPanel.add(staffPlaceholder, "ManageStaff");
-        contentPanel.add(reportsPlaceholder, "Reports");
+        contentPanel.add(homePanel, "Home");
+        contentPanel.add(staffPanel, "ManageStaff");
+        contentPanel.add(reportPanel, "Reports");
+        contentPanel.add(settingsPanel, "Settings");
     }
 
     @Override
     protected void addListeners() {
         // This method attaches listeners to the buttons created above.
-        btnHome.addActionListener(e -> {
+        btnHome.addActionListener(_ -> {
             btnHome.selectInSidebar();
             cardLayout.show(contentPanel, "Home");
-            // homePanel.refreshData();
+            homePanel.refreshData();
         });
 
-        btnManageStaff.addActionListener(e -> {
+        btnManageStaff.addActionListener(_ -> {
             btnManageStaff.selectInSidebar();
             cardLayout.show(contentPanel, "ManageStaff");
-            // staffPanel.refreshStaffList();
+            staffPanel.refreshStaffList();
         });
 
-        btnReports.addActionListener(e -> {
+        btnReports.addActionListener(_ -> {
             btnReports.selectInSidebar();
             cardLayout.show(contentPanel, "Reports");
-            // reportsPanel.refreshData();
+            reportPanel.loadReportData();
         });
 
-        btnLogout.addActionListener(e -> {
+        btnSettings.addActionListener(_ -> {
+            btnSettings.selectInSidebar();
+            cardLayout.show(contentPanel, "Settings");
+        });
+
+        btnLogout.addActionListener(_ -> {
             int choice = JOptionPane.showConfirmDialog(
                     this,
                     "Are you sure you want to log out?", "Confirm Logout",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
-                new StaffLoginView().setVisible(true);
+                new ClinicLoginView().setVisible(true);
                 dispose();
             }
         });

@@ -1,25 +1,47 @@
 package cms.model.entities;
 
+import java.time.LocalDateTime;
+
 public class User {
+
+    public enum Role {
+        ADMIN,
+        DOCTOR,
+        RECEPTIONIST
+    }
+
+    public enum Status {
+        Active,
+        Suspended
+    }
+
     private int userId;
     private int clinicId;
     private String name;
     private String username;
     private String password;
-    private String role; // PRIMARY_ADMIN, ADMIN, DOCTOR, RECEPTIONIST
+    private Role role; //ADMIN, DOCTOR, RECEPTIONIST
+    private Status status;
+    private LocalDateTime createdAt; // maps to DB created_at
+    private LocalDateTime updatedAt; // maps to DB updated_at
 
     // Relationship
     private Clinic clinic;   // each user belongs to one clinic
 
     public User() {}
 
-    public User(int userId, int clinicId, String name, String username, String password, String role) {
+    public User(int userId, int clinicId, String name, String username,
+                String password, Role role, Status status,
+                LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = userId;
         this.clinicId = clinicId;
         this.name = name;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // Getters & Setters
@@ -38,9 +60,18 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+    
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 
     public Clinic getClinic() { return clinic; }
     public void setClinic(Clinic clinic) { this.clinic = clinic; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt;}
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

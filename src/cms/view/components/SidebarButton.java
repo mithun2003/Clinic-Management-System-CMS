@@ -1,6 +1,7 @@
 package cms.view.components;
 
 import cms.utils.FontUtils;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -17,6 +18,7 @@ public class SidebarButton extends JButton {
     public enum Align {
         LEFT, CENTER, RIGHT
     }
+
     private Align textAlign;
 
     public SidebarButton(String text) {
@@ -44,16 +46,13 @@ public class SidebarButton extends JButton {
 
         // Alignment
         switch (textAlign) {
-            case CENTER ->{
+            case CENTER -> {
                 setHorizontalAlignment(SwingConstants.CENTER);
                 setAlignmentX(Component.CENTER_ALIGNMENT);
-                break;
             }
-                
-            case RIGHT ->
-                setHorizontalAlignment(SwingConstants.RIGHT);
-            default ->
-                setHorizontalAlignment(SwingConstants.LEFT);
+
+            case RIGHT -> setHorizontalAlignment(SwingConstants.RIGHT);
+            default -> setHorizontalAlignment(SwingConstants.LEFT);
         }
 
         if (isDanger) {
@@ -96,9 +95,7 @@ public class SidebarButton extends JButton {
                 }
             });
 
-            addActionListener(_ -> {
-                selectInSidebar();
-            });
+            addActionListener(_ -> selectInSidebar());
         }
     }
 
@@ -117,12 +114,9 @@ public class SidebarButton extends JButton {
 
             // Align underline with text alignment
             switch (textAlign) {
-                case CENTER ->
-                    textX = (getWidth() - textWidth) / 2;
-                case RIGHT ->
-                    textX = getWidth() - insets.right - textWidth;
-                default ->
-                    textX = insets.left;
+                case CENTER -> textX = (getWidth() - textWidth) / 2;
+                case RIGHT -> textX = getWidth() - insets.right - textWidth;
+                default -> textX = insets.left;
             }
 
             int textY = getHeight() / 2 + fm.getAscent() / 2 - 2;
@@ -135,12 +129,9 @@ public class SidebarButton extends JButton {
     public void setTextAlign(Align align) {
         this.textAlign = align;
         switch (align) {
-            case CENTER ->
-                setHorizontalAlignment(SwingConstants.CENTER);
-            case RIGHT ->
-                setHorizontalAlignment(SwingConstants.RIGHT);
-            default ->
-                setHorizontalAlignment(SwingConstants.LEFT);
+            case CENTER -> setHorizontalAlignment(SwingConstants.CENTER);
+            case RIGHT -> setHorizontalAlignment(SwingConstants.RIGHT);
+            default -> setHorizontalAlignment(SwingConstants.LEFT);
         }
         repaint();
     }

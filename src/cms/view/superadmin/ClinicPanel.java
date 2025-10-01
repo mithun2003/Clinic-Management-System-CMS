@@ -1,9 +1,11 @@
 package cms.view.superadmin;
 
 import cms.model.dao.ClinicDAO;
-import cms.model.dao.UserDAO;
+import cms.model.dao.SuperAdminDAO;
 import cms.model.entities.Clinic;
 import cms.model.entities.User;
+import cms.utils.FontUtils;
+import cms.view.components.StatusRenderer;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -22,7 +24,7 @@ public class ClinicPanel extends JPanel {
 
     // --- UI Components ---
     private JTextField tfCode, tfName, tfEmail, tfPhone, tfAddress;
-    private JComboBox<String> cbStatus;
+    private JComboBox<Clinic.Status> cbStatus;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnCreateAdmin;
     private JTable table;
     private DefaultTableModel model;
@@ -36,7 +38,7 @@ public class ClinicPanel extends JPanel {
 
     // --- Data Access ---
     private final ClinicDAO clinicDAO;
-    private final UserDAO userDAO;
+    private final SuperAdminDAO superAdminDAO;
 
     /**
      * Constructor: Initializes the UI components, layout, and event listeners.
@@ -44,7 +46,7 @@ public class ClinicPanel extends JPanel {
     public ClinicPanel() {
         // Initialize DAOs
         this.clinicDAO = new ClinicDAO();
-        this.userDAO = new UserDAO();
+        this.superAdminDAO = new SuperAdminDAO();
 
         // Setup panel layout
         setLayout(new BorderLayout(10, 10));
@@ -83,7 +85,7 @@ public class ClinicPanel extends JPanel {
      */
     private JPanel createFormPanel() {
         TitledBorder clinicBorder = BorderFactory.createTitledBorder("Clinic Details");
-        clinicBorder.setTitleFont(new Font("Arial", Font.BOLD, 18));
+        clinicBorder.setTitleFont(FontUtils.getUiFont(Font.BOLD, 18));
 
         JPanel formPanel = new JPanel(new GridLayout(3, 4, 15, 10)); // Adjusted layout
         formPanel.setBorder(clinicBorder);
@@ -93,7 +95,7 @@ public class ClinicPanel extends JPanel {
         tfEmail = new JTextField();
         tfPhone = new JTextField();
         tfAddress = new JTextField();
-        cbStatus = new JComboBox<>(new String[]{"Active", "Suspended"});
+        cbStatus = new JComboBox<>(Clinic.Status.values());
 
         formPanel.add(new JLabel("Clinic Code:"));
         formPanel.add(tfCode);
@@ -118,11 +120,11 @@ public class ClinicPanel extends JPanel {
      */
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        btnAdd = new JButton("Add Clinic");
-        btnUpdate = new JButton("Update Clinic");
-        btnDelete = new JButton("Delete Clinic");
+        btnAdd = new JButton("➕ Add Clinic");
+        btnUpdate = new JButton("📝 Update Clinic");
+        btnDelete = new JButton("🗑️ Delete Clinic");
         btnClear = new JButton("Clear Form");
-        btnCreateAdmin = new JButton("Create First Admin");
+        btnCreateAdmin = new JButton("👤 Create First Admin");
 
         btnCreateAdmin.setVisible(false); // Hide by default
 
@@ -156,14 +158,13 @@ public class ClinicPanel extends JPanel {
         };
         table = new JTable(model);
 
-        // Style the table
         table.setRowHeight(30);
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setFont(FontUtils.getUiFont(Font.PLAIN, 14));
         table.setForeground(Color.DARK_GRAY);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         // Style the table header
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        table.getTableHeader().setFont(FontUtils.getUiFont(Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(0, 102, 102));
         table.getTableHeader().setForeground(Color.WHITE);
         table.getTableHeader().setReorderingAllowed(false);
@@ -174,6 +175,8 @@ public class ClinicPanel extends JPanel {
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(0).setPreferredWidth(40); // Make ID column smaller
+        
+        table.getColumnModel().getColumn(6).setCellRenderer(new StatusRenderer());
 
         return table;
     }
@@ -295,7 +298,7 @@ public class ClinicPanel extends JPanel {
         c.setEmail(tfEmail.getText());
         c.setPhone(tfPhone.getText());
         c.setAddress(tfAddress.getText());
-        c.setStatus((String) cbStatus.getSelectedItem());
+        c.setStatus((Clinic.Status) cbStatus.getSelectedItem());
 
         int newClinicId = clinicDAO.addClinic(c);
 
@@ -307,7 +310,7 @@ public class ClinicPanel extends JPanel {
 
             if (newAdmin != null) {
                 newAdmin.setClinicId(newClinicId);
-                userDAO.addUser(newAdmin);
+                superAdminDAO.addAdmin(newAdmin);
                 JOptionPane.showMessageDialog(this, "Clinic and first Admin created successfully!");
             } else {
                 JOptionPane.showMessageDialog(this, "Clinic created, but first Admin was not. You can add one later.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -344,7 +347,7 @@ public class ClinicPanel extends JPanel {
         c.setEmail(tfEmail.getText());
         c.setPhone(tfPhone.getText());
         c.setAddress(tfAddress.getText());
-        c.setStatus(cbStatus.getSelectedItem().toString());
+        c.setStatus((Clinic.Status) cbStatus.getSelectedItem());
 
         clinicDAO.updateClinic(c);
         loadClinicsPage(currentPage);
@@ -395,7 +398,7 @@ public class ClinicPanel extends JPanel {
 
         if (newAdmin != null) {
             newAdmin.setClinicId(clinicId);
-            userDAO.addUser(newAdmin);
+            superAdminDAO.addAdmin(newAdmin);
             JOptionPane.showMessageDialog(this, "Admin for the clinic created successfully!");
             // After creating the admin, hide the button again
             btnCreateAdmin.setVisible(false);
@@ -433,7 +436,7 @@ public class ClinicPanel extends JPanel {
      * @param color The base color for the button.
      */
     private void styleButton(JButton button, Color color) {
-        button.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
+        button.setFont(FontUtils.getEmojiFont(Font.BOLD, 14));
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);

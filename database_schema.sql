@@ -3,6 +3,8 @@
 -- Database: MySQL
 -- Author: Mithun Thomas
 -- =================================================================
+USE clinicdb;
+
 
 -- Drop tables if they exist to start fresh (useful for development)
 DROP TABLE IF EXISTS billing;
@@ -53,7 +55,8 @@ CREATE TABLE users (
   name VARCHAR(100) NOT NULL,
   username VARCHAR(50) NOT NULL,
   password VARCHAR(255) NOT NULL COMMENT 'Stores hashed passwords (e.g., BCrypt)',
-  role ENUM('ADMIN', 'DOCTOR', 'RECEPTIONIST', 'NURSE') NOT NULL,
+  role ENUM('ADMIN', 'DOCTOR', 'RECEPTIONIST') NOT NULL,
+  status ENUM('Active', 'Suspended') NOT NULL DEFAULT 'Active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (clinic_id, username), -- A username must be unique within a specific clinic
   FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id) ON DELETE CASCADE

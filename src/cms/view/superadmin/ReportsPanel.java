@@ -19,7 +19,6 @@ import java.util.Map;
 public class ReportsPanel extends JPanel {
 
     private final ReportDAO reportDAO;
-    private boolean isDataLoaded = false;
 
     /**
      * Constructor: Sets up the initial layout and DAO. Does NOT load data.
@@ -98,9 +97,7 @@ public class ReportsPanel extends JPanel {
 
                     revalidate();
                     repaint();
-                    isDataLoaded = true;
                 } catch (Exception e) {
-                    e.printStackTrace();
                     // Show an error message on the panel if something went wrong
                     removeAll();
                     setLayout(new BorderLayout());

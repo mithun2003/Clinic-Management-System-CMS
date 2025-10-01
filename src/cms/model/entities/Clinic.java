@@ -4,13 +4,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Clinic {
+
+    /**
+     * Enum to represent the operational status of a clinic. Ensures that only
+     * valid statuses can be used.
+     */
+    public enum Status {
+        Active,
+        Suspended
+    }
+
     private int clinicId;
     private String clinicCode;     // maps to DB `code`
     private String clinicName;     // maps to DB `name`
     private String email;          // maps to DB `email`
     private String phone;          // maps to DB `phone`
     private String address;        // maps to DB `address`
-    private String status;         // maps to DB `status`
+    private Status status;         // maps to DB `status`
     private LocalDateTime createdAt; // maps to DB created_at
     private LocalDateTime updatedAt; // maps to DB updated_at
 
@@ -22,8 +32,8 @@ public class Clinic {
     public Clinic() {}
 
     public Clinic(int clinicId, String clinicCode, String clinicName,
-                  String email, String phone, String address, String status,
-                  LocalDateTime createdAt, LocalDateTime updatedAt) {
+            String email, String phone, String address, Status status,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.clinicId = clinicId;
         this.clinicCode = clinicCode;
         this.clinicName = clinicName;
@@ -54,8 +64,8 @@ public class Clinic {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
