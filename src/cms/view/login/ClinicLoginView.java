@@ -37,7 +37,7 @@ public class ClinicLoginView extends JFrame {
      */
     private void initializeFrame() {
         setUndecorated(true);
-        setSize(1000, 665);
+        setSize(1024, 665);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());

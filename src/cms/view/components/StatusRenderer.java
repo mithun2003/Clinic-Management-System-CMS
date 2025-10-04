@@ -1,52 +1,49 @@
 package cms.view.components;
 
-import cms.model.entities.Clinic;
-import cms.model.entities.User;
-import javax.swing.*;
+import cms.model.entities.Enums;
 import java.awt.*;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
-/**
- * A reusable renderer for displaying Status enums (like Clinic.Status or
- * User.Status) with different colors.
- */
 public class StatusRenderer extends DefaultTableCellRenderer {
+
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-            int row, int column) {
-        // Call the parent method first to set up default rendering
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int row, int column) {
+        // Call the parent method first
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        // Handle null values
-        // Determine the type of status and apply color
-        switch (value) {
-        case null -> {
-            setBackground(Color.WHITE);
-            setForeground(Color.GRAY);
-            return this;
-        }
-        case Clinic.Status status -> {
-            switch (status) {
-            case Active -> setBackground(new Color(0, 174, 0)); // Green
-            case Suspended -> setBackground(new Color(255, 99, 71)); // Red
-            default -> setBackground(Color.WHITE);
-            }
-        }
-        case User.Status status -> {
-            switch (status) {
-            case Active -> setBackground(new Color(0, 174, 0)); // Green
-            case Suspended -> setBackground(new Color(255, 99, 71)); // Red
-            default -> setBackground(Color.WHITE);
-            }
-        }
-        default -> {
-            setBackground(Color.WHITE);
-            setForeground(Color.GRAY);
-            return this;
-        }
-        }
-        // Ensure text is white on colored backgrounds
-        setForeground(Color.WHITE);
+
+        // Default appearance for non-status or null values
+        setBackground(table.getBackground());
+        setForeground(table.getForeground());
         setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Check if the value is a Status enum
+        if (value instanceof Enums.Status status) {
+            // Apply styling based on the status value
+            switch (status) {
+                case Active:
+                    setBackground(new Color(34, 139, 34)); // Darker Green
+                    setForeground(Color.WHITE);
+                    setText("Active");
+                    break;
+                case Inactive:
+                case Suspended:
+                case Blocked:
+                    setBackground(new Color(220, 20, 60)); // Crimson Red
+                    setForeground(Color.WHITE);
+                    // You can customize the text for each
+                    setText(status.name()); // Will show "Inactive", "Suspended", or "Blocked"
+                    break;
+                default:
+                    // Fallback for any other status you might add
+                    setBackground(Color.LIGHT_GRAY);
+                    setForeground(Color.BLACK);
+                    break;
+            }
+        }
         return this;
     }
 }

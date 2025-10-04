@@ -2,6 +2,7 @@ package cms.model.dao;
 
 import cms.model.database.DBConnection;
 import cms.model.entities.Clinic;
+import cms.model.entities.Enums;
 import cms.utils.LoggerUtil;
 
 import java.sql.*;
@@ -14,7 +15,7 @@ public class ClinicDAO {
     public int addClinic(Clinic clinic) {
         String sql = "INSERT INTO clinics (code, name, email, phone, address, status) VALUES (?,?,?,?,?,?)";
         try (Connection con = DBConnection.getConnection(); // We need to get the generated ID back
-                 PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pst.setString(1, clinic.getClinicCode());
             pst.setString(2, clinic.getClinicName());
@@ -23,9 +24,9 @@ public class ClinicDAO {
             pst.setString(5, clinic.getAddress());
 
             // First, get the status object.
-            Clinic.Status status = clinic.getStatus();
+            Enums.Status status = clinic.getStatus();
             // If the status object is null, default to Active. Otherwise, get its name.
-            String statusStringToSave = (status != null) ? status.name() : Clinic.Status.Active.name();
+            String statusStringToSave = (status != null) ? status.name() : Enums.Status.Active.name();
             // Now, set the parameter
             pst.setString(6, statusStringToSave);
 
@@ -38,7 +39,8 @@ public class ClinicDAO {
                     }
                 }
             }
-            LoggerUtil.logError("Failed to add clinic: " + clinic.getClinicName(), new Exception("Insert failed, no rows affected."));
+            LoggerUtil.logError("Failed to add clinic: " + clinic.getClinicName(),
+                    new Exception("Insert failed, no rows affected."));
             return -1;
         } catch (java.sql.SQLIntegrityConstraintViolationException e) {
             // This exception is thrown for duplicate unique keys (like code or email)
@@ -83,7 +85,9 @@ public class ClinicDAO {
     public List<Clinic> getAllClinics() {
         List<Clinic> clinics = new ArrayList<>();
         String sql = "SELECT clinic_id, code, name, email, phone, address, status, created_at, updated_at FROM clinics";
-        try (Connection con = DBConnection.getConnection(); Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Connection con = DBConnection.getConnection();
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 clinics.add(getClinicDetails(rs));
             }
@@ -116,7 +120,7 @@ public class ClinicDAO {
         c.setEmail(rs.getString("email"));
         c.setPhone(rs.getString("phone"));
         c.setAddress(rs.getString("address"));
-        c.setStatus(Clinic.Status.valueOf(rs.getString("status")));
+        c.setStatus(Enums.Status.valueOf(rs.getString("status")));
         c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         c.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
         return c;
@@ -148,7 +152,9 @@ public class ClinicDAO {
     public int getTotalClinics() {
         // Default → no filter, get all
         String sql = "SELECT COUNT(*) AS total FROM clinics";
-        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt("total");
             }

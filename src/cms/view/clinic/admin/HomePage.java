@@ -46,7 +46,7 @@ public class HomePage extends JPanel {
         // === Stats Cards Panel ===
         JPanel statsPanel = new JPanel(new GridLayout(1, 3, 20, 20));
         statsPanel.setBackground(Color.WHITE);
-        statsPanel.setPreferredSize(new Dimension(700, 140));
+        statsPanel.setPreferredSize(new Dimension(710, 140));
 
         totalPatientsCard = new StatCardPanel("Total Patients", "👥");
         todaysAppointmentsCard = new StatCardPanel("Today's Appointments", "📅");
@@ -92,9 +92,9 @@ public class HomePage extends JPanel {
             ));
             setBackground(new Color(248, 249, 250));
             valueLabel = new JLabel("0", JLabel.LEFT);
-            valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
+            valueLabel.setFont(FontUtils.getUiFont(Font.BOLD, 36));
             JLabel titleLabel = new JLabel(icon + " " + title, JLabel.LEFT);
-            titleLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+            titleLabel.setFont(FontUtils.getEmojiFont(Font.PLAIN, 16));
             titleLabel.setForeground(Color.GRAY);
             add(valueLabel, BorderLayout.CENTER);
             add(titleLabel, BorderLayout.SOUTH);

@@ -3,6 +3,7 @@ package cms.model.dao;
 import cms.controller.AuthResult;
 import cms.model.database.DBConnection;
 import cms.model.entities.Clinic;
+import cms.model.entities.Enums;
 import cms.model.entities.User;
 import cms.utils.LoggerUtil;
 import cms.utils.PasswordUtils;
@@ -14,80 +15,102 @@ import java.util.List;
 public class UserDAO {
 
     // Validate login and return User object if found
-    public AuthResult validateLogin(String clinicCode, String username,
-                                    String password) {
-        String sql = "SELECT u.user_id, u.clinic_id, u.name, u.username, u.password, u.role, u.status, "
-                     + "c.name AS clinic_name, c.code AS clinic_code, c.address, c.phone, c.status AS clinic_status "
-                     + "FROM users u "
-                     + "JOIN clinics c ON u.clinic_id = c.clinic_id "
-                     + "WHERE c.code = ? "
-                     + "AND u.username = ? "
-                     + "AND u.status = 'Active' "
-                     + "AND c.status = 'Active'";
+    public AuthResult validateLogin(String clinicCode, String username, String password) {
+        Connection con = null;
+        try {
+            con = DBConnection.getConnection();
 
-        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            // --- STEP 1: Validate the Clinic First ---
+            String clinicSql = "SELECT clinic_id, name, address, phone, status FROM clinics WHERE code = ?";
+            Clinic clinic = null;
+            try (PreparedStatement pstClinic = con.prepareStatement(clinicSql)) {
+                pstClinic.setString(1, clinicCode);
+                ResultSet rsClinic = pstClinic.executeQuery();
 
-            pst.setString(1, clinicCode);
-            pst.setString(2, username);
+                if (!rsClinic.next()) {
+                    // Clinic with the given code does not exist.
+                    return new AuthResult(AuthResult.AuthStatus.CLINIC_NOT_FOUND, clinicCode);
+                }
 
-            ResultSet rs = pst.executeQuery();
-            if (!rs.next()) {
-                // No user found, so it's a clear case of invalid credentials.
-                return new AuthResult(AuthResult.AuthStatus.CLINIC_NOT_FOUND, clinicCode);
+                // Clinic exists, now check its status.
+                String clinicStatusStr = rsClinic.getString("status");
+                if (!"Active".equalsIgnoreCase(clinicStatusStr)) {
+                    return new AuthResult(AuthResult.AuthStatus.CLINIC_SUSPENDED);
+                }
+
+                // If we are here, the clinic is valid and active. Build the Clinic object.
+                clinic = new Clinic();
+                clinic.setClinicId(rsClinic.getInt("clinic_id"));
+                clinic.setClinicCode(clinicCode); // We already have this
+                clinic.setClinicName(rsClinic.getString("name"));
+                clinic.setAddress(rsClinic.getString("address"));
+
+                clinic.setPhone(rsClinic.getString("phone"));
+                clinic.setStatus(Enums.Status.valueOf(clinicStatusStr));
             }
 
-            String storedHash = rs.getString("password");
-            if (!PasswordUtils.checkPassword(password, storedHash)) {
-                // Password did not match.
-                return new AuthResult(AuthResult.AuthStatus.INVALID_CREDENTIALS);
+            // --- STEP 2: Validate the User Second ---
+            String userSql = "SELECT user_id, name, username, password, role, status FROM users WHERE clinic_id = ? AND username = ?";
+            try (PreparedStatement pstUser = con.prepareStatement(userSql)) {
+                pstUser.setInt(1, clinic.getClinicId());
+                pstUser.setString(2, username);
+                ResultSet rsUser = pstUser.executeQuery();
+
+                if (!rsUser.next()) {
+                    // The clinic was valid, but this username doesn't exist in it.
+                    return new AuthResult(AuthResult.AuthStatus.INVALID_CREDENTIALS);
+                }
+
+                // User exists, now check their status.
+                String userStatusStr = rsUser.getString("status");
+                if (!"Active".equalsIgnoreCase(userStatusStr)) {
+                    return new AuthResult(AuthResult.AuthStatus.USER_BLOCKED);
+                }
+
+                // Finally, check the password.
+                String storedHash = rsUser.getString("password");
+                if (!PasswordUtils.checkPassword(password, storedHash)) {
+                    return new AuthResult(AuthResult.AuthStatus.INVALID_CREDENTIALS);
+                }
+
+                // --- ALL CHECKS PASSED: SUCCESS ---
+                User user = new User();
+                user.setUserId(rsUser.getInt("user_id"));
+                user.setClinicId(clinic.getClinicId());
+                user.setName(rsUser.getString("name"));
+                user.setUsername(rsUser.getString("username"));
+                user.setPassword(storedHash); // Store the hash
+                user.setRole(Enums.Role.valueOf(rsUser.getString("role").toUpperCase()));
+                user.setStatus(Enums.Status.valueOf(userStatusStr));
+
+                user.setClinic(clinic); // Set the relationship
+
+                return new AuthResult(user);
             }
-
-            String clinicStatusStr = rs.getString("clinic_status");
-            if (!"Active".equalsIgnoreCase(clinicStatusStr)) {
-                return new AuthResult(AuthResult.AuthStatus.CLINIC_SUSPENDED);
-            }
-
-            String userStatusStr = rs.getString("status"); // Assuming 'status' in 'users' table
-            if (!"Active".equalsIgnoreCase(userStatusStr)) {
-                return new AuthResult(AuthResult.AuthStatus.USER_BLOCKED);
-            }
-
-            // 1. Create a Clinic object from the ResultSet
-            Clinic clinic = new Clinic();
-            clinic.setClinicId(rs.getInt("clinic_id"));
-            clinic.setClinicCode(rs.getString("clinic_code"));
-            clinic.setClinicName(rs.getString("clinic_name"));
-            clinic.setAddress(rs.getString("address")); // Set other details too
-            clinic.setPhone(rs.getString("phone"));
-            clinic.setStatus(Clinic.Status.valueOf(rs.getString("clinic_status")));
-
-            // 2. Create the User object
-            User user = new User();
-            user.setUserId(rs.getInt("user_id"));
-            user.setClinicId(rs.getInt("clinic_id"));
-            user.setName(rs.getString("name"));
-            user.setUsername(rs.getString("username"));
-            user.setPassword(rs.getString("password"));
-            user.setStatus(User.Status.valueOf(rs.getString("status")));
-
-            // Convert role string to enum
-            user.setRole(User.Role.valueOf(rs.getString("role").toUpperCase()));
-
-            user.setClinic(clinic);
-
-            return new AuthResult(user);
 
         } catch (Exception e) {
             LoggerUtil.logError("Failed to validate login for user: " + username, e);
+            // Return a generic error to the UI for security in case of unexpected
+            // exceptions
             return new AuthResult(AuthResult.AuthStatus.INVALID_CREDENTIALS);
-
+        } finally {
+            // Ensure the connection is closed in a single-connection model
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    LoggerUtil.logError("Failed to close connection in validateLogin.", e);
+                }
+            }
         }
     }
 
     // Add this method to get the total number of staff users
     public int getTotalUserCount() {
         String sql = "SELECT COUNT(*) AS total_users FROM users";
-        try (Connection con = DBConnection.getConnection(); Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Connection con = DBConnection.getConnection();
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("total_users");
             }
@@ -115,24 +138,35 @@ public class UserDAO {
         return 0;
     }
 
-    public boolean addUser(User user) {
-        String sql = "INSERT INTO users (clinic_id, name, username, password, role) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+    public int addUser(User user) {
+        String sql = "INSERT INTO users (clinic_id, name, username, password, role, status) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setInt(1, user.getClinicId());
             pst.setString(2, user.getName());
             pst.setString(3, user.getUsername());
             pst.setString(4, user.getPassword()); // Assumes password is ALREADY HASHED
             pst.setString(5, user.getRole().name()); // Convert enum to string
-            return pst.executeUpdate() > 0;
+            pst.setString(6, (user.getStatus() != null) ? user.getStatus().name() : "Active");
+            int affectedRows = pst.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pst.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1); // Return the new user_id
+                    }
+                }
+            }
+
         } catch (java.sql.SQLIntegrityConstraintViolationException e) {
-            // This is a specific, expected error (duplicate username), so we log it as a warning.
-            LoggerUtil.logWarning("Attempted to insert a duplicate username: " + user.getUsername() + " for clinic ID: " + user.getClinicId());
-            return false;
+            // This is a specific, expected error (duplicate username), so we log it as a
+            // warning.
+            LoggerUtil.logWarning("Attempted to insert a duplicate username: " + user.getUsername() + " for clinic ID: "
+                    + user.getClinicId());
         } catch (Exception e) {
             // This is an unexpected database error.
             LoggerUtil.logError("Failed to add user: " + user.getUsername(), e);
-            return false;
         }
+        return -1;
     }
 
     // New method to update an existing user
@@ -141,6 +175,8 @@ public class UserDAO {
         // flow is usually better.
         String sql = "UPDATE users SET name = ?, username = ?, role = ?, status = ? WHERE user_id = ?";
         try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+            System.out.println(user.toString());
+            System.out.println(user.getStatus());
             pst.setString(1, user.getName());
             pst.setString(2, user.getUsername());
             pst.setString(3, user.getRole().name());
@@ -168,10 +204,14 @@ public class UserDAO {
     // You already have getUsersByClinicId for the list
     // Let's add pagination to it
     public List<User> getPaginatedUsersByClinicId(int clinicId, int page,
-                                                  int pageSize) {
+            int pageSize) {
         List<User> userList = new ArrayList<>();
-        String sql = "SELECT user_id, name, username, role, status, created_at, updated_at FROM users WHERE clinic_id = ? AND role != 'ADMIN' ORDER BY created_at DESC LIMIT ? OFFSET ?";
-        int offset = ( page - 1 ) * pageSize;
+        String sql = "SELECT u.user_id, u.name, u.username, u.role, u.status, d.specialization, d.status " +
+                "FROM users u " +
+                "LEFT JOIN doctors d ON u.user_id = d.user_id " +
+                "WHERE u.clinic_id = ? AND u.role != 'ADMIN' " +
+                "ORDER BY u.created_at DESC LIMIT ? OFFSET ?";
+        int offset = (page - 1) * pageSize;
         try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setInt(1, clinicId);
             pst.setInt(2, pageSize);
@@ -182,8 +222,11 @@ public class UserDAO {
                 user.setUserId(rs.getInt("user_id"));
                 user.setName(rs.getString("name"));
                 user.setUsername(rs.getString("username"));
-                user.setRole(User.Role.valueOf(rs.getString("role")));
-                user.setStatus(User.Status.valueOf(rs.getString("status")));
+                user.setRole(Enums.Role.valueOf(rs.getString("role")));
+                user.setStatus(Enums.Status.valueOf(rs.getString("status")));
+
+                user.setSpecialization(rs.getString("specialization"));
+
                 userList.add(user);
             }
         } catch (Exception e) {
@@ -197,7 +240,7 @@ public class UserDAO {
     /**
      * Updates ONLY the password for a specific user.
      *
-     * @param userId The ID of the user to update.
+     * @param userId            The ID of the user to update.
      * @param newHashedPassword The new, already hashed password.
      * @return true if the update was successful, false otherwise.
      */

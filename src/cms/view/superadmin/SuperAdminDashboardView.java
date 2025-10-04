@@ -6,7 +6,6 @@ import cms.view.components.SidebarButton;
 import cms.view.login.SuperAdminLoginView;
 
 import javax.swing.*;
-import java.awt.*;
 
 // 👇 Step 1: Extend the DashboardTemplate instead of JFrame
 public class SuperAdminDashboardView extends DashboardTemplate {
@@ -21,7 +20,8 @@ public class SuperAdminDashboardView extends DashboardTemplate {
     private final SuperAdmin loggedInSuperAdmin;
 
     public SuperAdminDashboardView(SuperAdmin sa) {
-        // Step 1: The parent constructor is called implicitly. It builds the empty shell.
+        // Step 1: The parent constructor is called implicitly. It builds the empty
+        // shell.
 
         // Step 2: Initialize THIS class's fields. This is now safe.
         this.loggedInSuperAdmin = sa;
@@ -31,22 +31,18 @@ public class SuperAdminDashboardView extends DashboardTemplate {
         buildDashboard("Super Admin Dashboard - " + loggedInSuperAdmin.getName());
     }
 
-    // 👇 Step 4: Implement the abstract methods to "fill in the blanks" of the template
+    // 👇 Step 4: Implement the abstract methods to "fill in the blanks" of the
+    // template
     @Override
     protected void addSidebarButtons() {
         // This method is called by the template to add OUR buttons to ITS sidebar.
         btnHome = new SidebarButton("🏠 Home");
         btnManageClinics = new SidebarButton("🏥 Manage Clinics");
         btnReports = new SidebarButton("📊 Reports");
-//        btnLogout = new SidebarButton("🚪 Logout", true, SidebarButton.Align.CENTER);
 
         mainNavPanel.add(btnHome);
         mainNavPanel.add(btnManageClinics);
         mainNavPanel.add(btnReports);
-
-//        sidebar.add(Box.createVerticalGlue());
-        // This pushes the logout button to the bottom
-//        sidebar.add(btnLogout);
     }
 
     @Override
@@ -64,25 +60,25 @@ public class SuperAdminDashboardView extends DashboardTemplate {
     @Override
     protected void addListeners() {
         // This method is called by the template to attach OUR listeners.
-        btnHome.addActionListener(e -> {
+        btnHome.addActionListener(_ -> {
             btnHome.selectInSidebar();
             cardLayout.show(contentPanel, "Home");
             homePanel.refreshData();
         });
 
-        btnManageClinics.addActionListener(e -> {
+        btnManageClinics.addActionListener(_ -> {
             btnManageClinics.selectInSidebar();
             cardLayout.show(contentPanel, "ManageClinics");
             clinicPanel.refreshClinics(1);
         });
 
-        btnReports.addActionListener(e -> {
+        btnReports.addActionListener(_ -> {
             btnReports.selectInSidebar();
             cardLayout.show(contentPanel, "Reports");
             reportsPanel.loadReportData();
         });
 
-        btnLogout.addActionListener(e -> {
+        btnLogout.addActionListener(_ -> {
             int choice = JOptionPane.showConfirmDialog(
                     this, "Are you sure you want to log out?", "Confirm Logout",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -100,5 +96,4 @@ public class SuperAdminDashboardView extends DashboardTemplate {
         cardLayout.show(contentPanel, "Home");
     }
 
- 
 }

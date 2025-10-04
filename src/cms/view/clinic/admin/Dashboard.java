@@ -1,4 +1,4 @@
-package cms.view.clinic.admin; // Or your correct package
+package cms.view.clinic.admin;
 
 import cms.model.entities.User;
 import cms.view.components.DashboardTemplate;
@@ -9,26 +9,20 @@ import javax.swing.*;
 public class Dashboard extends DashboardTemplate {
 
     // --- Components specific to this dashboard ---
-    private SidebarButton btnHome, btnManageStaff, btnReports, btnSettings;
+    private SidebarButton btnHome, btnManageStaff, btnSpecializations, btnReports, btnSettings;
 
     // We'll declare the panels as fields so they can be accessed in listeners
-    private HomePage homePanel; // A home page specific to the clinic admin
+    private HomePage homePanel;
     private StaffPage staffPanel;
     private ReportPage reportPanel;
     private SettingsPage settingsPanel;
+    private SpecializationPage specializationPanel;
 
     // --- State ---
     private final User loggedInAdmin;
 
     public Dashboard(User admin) {
-        // Step 1: The parent constructor is called implicitly first.
-        // It builds the empty JFrame shell with an empty sidebar and content panel.
-
-        // Step 2: Initialize THIS class's fields. This is now safe.
         this.loggedInAdmin = admin;
-
-        // Step 3: Now that all fields are initialized, call the final build method
-        // from the template, passing the now-safe title.
         buildDashboard(getClinicName(loggedInAdmin) + " - Admin Dashboard");
     }
 
@@ -38,11 +32,13 @@ public class Dashboard extends DashboardTemplate {
         // This method populates the 'sidebar' panel created by the template.
         btnHome = new SidebarButton("🏠 Home");
         btnManageStaff = new SidebarButton("👥 Manage Staff");
+        btnSpecializations = new SidebarButton("✨ Specializations");
         btnReports = new SidebarButton("📊 View Reports");
         btnSettings = new SidebarButton("⚙️ Settings");
 
         mainNavPanel.add(btnHome);
         mainNavPanel.add(btnManageStaff);
+        mainNavPanel.add(btnSpecializations);
         mainNavPanel.add(btnReports);
         mainNavPanel.add(btnSettings);
     }
@@ -54,11 +50,13 @@ public class Dashboard extends DashboardTemplate {
 
         homePanel = new HomePage(loggedInAdmin);
         staffPanel = new StaffPage(loggedInAdmin.getClinicId());
+        specializationPanel = new SpecializationPage(loggedInAdmin.getClinicId());
         reportPanel = new ReportPage(loggedInAdmin);
         settingsPanel = new SettingsPage(loggedInAdmin);
 
         contentPanel.add(homePanel, "Home");
         contentPanel.add(staffPanel, "ManageStaff");
+        contentPanel.add(specializationPanel, "Specializations");
         contentPanel.add(reportPanel, "Reports");
         contentPanel.add(settingsPanel, "Settings");
     }
@@ -76,6 +74,12 @@ public class Dashboard extends DashboardTemplate {
             btnManageStaff.selectInSidebar();
             cardLayout.show(contentPanel, "ManageStaff");
             staffPanel.refreshStaffList();
+        });
+
+         btnSpecializations.addActionListener(_ -> {
+            btnSpecializations.selectInSidebar();
+            cardLayout.show(contentPanel, "Specializations");
+            specializationPanel.refreshList(); // Load the data
         });
 
         btnReports.addActionListener(_ -> {

@@ -36,7 +36,7 @@ public class SuperAdminLoginView extends JFrame {
      */
     private void initializeFrame() {
         setUndecorated(true);
-        setSize(1000, 665);
+        setSize(1024, 665);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());

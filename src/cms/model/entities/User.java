@@ -4,34 +4,25 @@ import java.time.LocalDateTime;
 
 public class User {
 
-    public enum Role {
-        ADMIN,
-        DOCTOR,
-        RECEPTIONIST
-    }
-
-    public enum Status {
-        Active,
-        Suspended
-    }
 
     private int userId;
     private int clinicId;
     private String name;
     private String username;
     private String password;
-    private Role role; //ADMIN, DOCTOR, RECEPTIONIST
-    private Status status;
+    private Enums.Role role; //ADMIN, DOCTOR, RECEPTIONIST
+    private Enums.Status status;
     private LocalDateTime createdAt; // maps to DB created_at
     private LocalDateTime updatedAt; // maps to DB updated_at
 
     // Relationship
     private Clinic clinic;   // each user belongs to one clinic
+    private String specialization;
 
     public User() {}
 
     public User(int userId, int clinicId, String name, String username,
-                String password, Role role, Status status,
+                String password, Enums.Role role, Enums.Status status,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = userId;
         this.clinicId = clinicId;
@@ -50,28 +41,32 @@ public class User {
 
     public int getClinicId() { return clinicId; }
     public void setClinicId(int clinicId) { this.clinicId = clinicId; }
-    
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    
+
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
-    
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public Enums.Role getRole() { return role; }
+    public void setRole(Enums.Role role) { this.role = role; }
+
+    public Enums.Status getStatus() { return status; }
+    public void setStatus(Enums.Status status) { this.status = status; }
 
     public Clinic getClinic() { return clinic; }
     public void setClinic(Clinic clinic) { this.clinic = clinic; }
-    
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt;}
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+     public String getSpecialization() { return specialization; }
+
+    public void setSpecialization(String specialization) { this.specialization = specialization; }
 }

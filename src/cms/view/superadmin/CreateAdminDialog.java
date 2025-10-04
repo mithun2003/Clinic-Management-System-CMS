@@ -1,11 +1,13 @@
 package cms.view.superadmin;
 
+import cms.model.entities.Enums;
 import cms.model.entities.User;
+import cms.utils.FontUtils;
 import cms.utils.PasswordUtils;
 import cms.utils.TitleBarManager;
 import cms.view.components.PlaceholderTextField;
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class CreateAdminDialog extends JDialog {
 
@@ -55,15 +57,15 @@ public class CreateAdminDialog extends JDialog {
         // Style button
         btnCreate.setBackground(new Color(0, 102, 102));
         btnCreate.setForeground(Color.WHITE);
-        btnCreate.setFont(new Font("Arial", Font.BOLD, 14));
+        btnCreate.setFont(FontUtils.getUiFont(Font.BOLD, 14));
 
         buttonPanel.add(btnCancel);
         buttonPanel.add(btnCreate);
-        
+
         gbc.gridy = 3;
         gbc.insets = new Insets(20, 0, 0, 0);
         formPanel.add(buttonPanel, gbc);
-        
+
         add(formPanel, BorderLayout.CENTER);
 
         // --- Action Listeners ---
@@ -89,7 +91,7 @@ public class CreateAdminDialog extends JDialog {
         newAdmin.setName(name);
         newAdmin.setUsername(username);
         newAdmin.setPassword(hashedPassword); // Store the HASH
-        newAdmin.setRole(User.Role.ADMIN);
+        newAdmin.setRole(Enums.Role.ADMIN);
 
         dispose(); // Close the dialog
     }

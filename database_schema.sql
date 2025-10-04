@@ -7,6 +7,7 @@ USE clinicdb;
 
 
 -- Drop tables if they exist to start fresh (useful for development)
+DROP TABLE IF EXISTS specialization;
 DROP TABLE IF EXISTS billing;
 DROP TABLE IF EXISTS prescriptions;
 DROP TABLE IF EXISTS appointments;
@@ -72,6 +73,7 @@ CREATE TABLE doctors (
   specialization VARCHAR(100),
   consultation_fee DECIMAL(10, 2) DEFAULT 0.00,
   schedule TEXT COMMENT 'Stores schedule info, e.g., "Mon-Fri 9am-5pm"',
+  status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -125,6 +127,21 @@ CREATE TABLE prescriptions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Table `specializations`
+-- Stores a list of medical specializations available at each clinic.
+-- This allows each clinic to define its own set of roles.
+-- -----------------------------------------------------
+CREATE TABLE specializations (
+  specialization_id INT AUTO_INCREMENT PRIMARY KEY,
+  clinic_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  UNIQUE (clinic_id, name), -- A specialization name must be unique within a clinic
+  status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+  FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 
 -- -----------------------------------------------------
 -- Table `billing`

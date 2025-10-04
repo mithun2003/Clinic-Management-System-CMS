@@ -1,3 +1,5 @@
+package cms.view.superadmin;
+
 import cms.view.login.SuperAdminLoginView;
 import javax.swing.SwingUtilities;
 

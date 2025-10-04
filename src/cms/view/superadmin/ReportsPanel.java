@@ -75,7 +75,8 @@ public class ReportsPanel extends JPanel {
 
             @Override
             protected void done() {
-                // This happens on the Event Dispatch Thread (EDT) after doInBackground is finished
+                // This happens on the Event Dispatch Thread (EDT) after doInBackground is
+                // finished
                 try {
                     // This is where you update the UI
                     removeAll();
@@ -132,12 +133,13 @@ public class ReportsPanel extends JPanel {
         // 1. Specify <String> as the generic type for the keys.
         DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 
-// 2. Your DAO method already returns a correctly typed Map.
+        // 2. Your DAO method already returns a correctly typed Map.
         Map<String, Integer> data = reportDAO.getUserCountByRole();
 
-// 3. The rest of your code now works perfectly and is type-safe.
+        // 3. The rest of your code now works perfectly and is type-safe.
         for (Map.Entry<String, Integer> entry : data.entrySet()) {
-            // The compiler knows that entry.getKey() is a String and entry.getValue() is a Number.
+            // The compiler knows that entry.getKey() is a String and entry.getValue() is a
+            // Number.
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 

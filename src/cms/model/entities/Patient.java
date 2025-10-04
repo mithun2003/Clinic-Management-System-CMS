@@ -1,25 +1,34 @@
 package cms.model.entities;
 
+import java.time.LocalDate;
+
+/**
+ * Represents a patient record in the clinic.
+ * This class is a Plain Old Java Object (POJO) that maps to the 'patients' table.
+ */
 public class Patient {
+
     private int patientId;
     private int clinicId;
+
+    // Basic Information
     private String name;
-    private String dob; // use String (yyyy-mm-dd) for simplicity, can use java.sql.Date
-    private String contact;
-    private String history;
+    private LocalDate dob; // Use LocalDate for dates
+    private String gender;
 
-    private User user; // relationship to User
+    // Contact Information
+    private String phone;
+    private String email;
+    private String address;
 
+    // Medical Information
+    private String bloodGroup;
+    private String allergies;
+
+    // No-argument constructor (required by some frameworks)
     public Patient() {}
 
-    public Patient(int patientId, int clinicId, String name, String dob, String contact, String history) {
-        this.patientId = patientId;
-        this.clinicId = clinicId;
-        this.name = name;
-        this.dob = dob;
-        this.contact = contact;
-        this.history = history;
-    }
+    // --- Getters and Setters ---
 
     public int getPatientId() { return patientId; }
     public void setPatientId(int patientId) { this.patientId = patientId; }
@@ -30,16 +39,34 @@ public class Patient {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getDob() { return dob; }
-    public void setDob(String dob) { this.dob = dob; }
+    public LocalDate getDob() { return dob; }
+    public void setDob(LocalDate dob) { this.dob = dob; }
 
-    public String getContact() { return contact; }
-    public void setContact(String contact) { this.contact = contact; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public String getHistory() { return history; }
-    public void setHistory(String history) { this.history = history; }
-    
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+
+    public String getBloodGroup() { return bloodGroup; }
+    public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
+
+    public String getAllergies() { return allergies; }
+    public void setAllergies(String allergies) { this.allergies = allergies; }
+
+    /**
+     * Provides a string representation of the patient, useful for debugging
+     * and for displaying in UI components like JComboBox.
+     * @return The patient's name.
+     */
+    @Override
+    public String toString() {
+        return this.name; // This is very useful for dropdown menus
+    }
 }

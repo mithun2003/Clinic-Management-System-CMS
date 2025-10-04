@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch Staff App",
+            "request": "launch",
+            "mainClass": "cms.view.clinic.StaffMain",
+            "projectName": "ClinicManagementSystem_6ed31d35"
+        },
+        {
+            "type": "java",
+            "name": "Launch Super Admin App",
+            "request": "launch",
+            "mainClass": "cms.view.superadmin.SuperAdminMain",
+            "projectName": "ClinicManagementSystem_6ed31d35"
+        }
+    ]
+}

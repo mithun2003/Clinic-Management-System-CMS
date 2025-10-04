@@ -37,14 +37,14 @@ public class TitleBarManager {
 
         // --- Style and Add Actions ---
         styleControlButton(btnMinimize, new Color(0, 102, 102), new Color(0, 128, 128));
-        btnMinimize.addActionListener(e -> {
+        btnMinimize.addActionListener(_ -> {
             if (window instanceof JFrame) {
                 ((JFrame) window).setState(JFrame.ICONIFIED);
             }
         });
 
         styleControlButton(btnMaximize, new Color(0, 102, 102), new Color(0, 128, 128));
-        btnMaximize.addActionListener(e -> {
+        btnMaximize.addActionListener(_ -> {
             if (window instanceof JFrame) {
                 JFrame frame = (JFrame) window;
                 if (frame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
@@ -57,7 +57,7 @@ public class TitleBarManager {
 
         styleControlButton(btnClose, new Color(220, 53, 69), new Color(200, 35, 51));
         // This action works for both JFrame and JDialog
-        btnClose.addActionListener(e -> window.dispose());
+        btnClose.addActionListener(_ -> window.dispose());
 
         // --- Add Buttons to Control Panel (Only for JFrames) ---
         // JDialogs should not have minimize or maximize buttons.

@@ -17,7 +17,7 @@ public abstract class DashboardTemplate extends JFrame {
     public DashboardTemplate() {
         // --- Frame and Shell Setup ---
         setUndecorated(true);
-        setSize(1000, 665);
+        setSize(1024, 665);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());

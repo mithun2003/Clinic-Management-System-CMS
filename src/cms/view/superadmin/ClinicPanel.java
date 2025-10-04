@@ -3,17 +3,17 @@ package cms.view.superadmin;
 import cms.model.dao.ClinicDAO;
 import cms.model.dao.SuperAdminDAO;
 import cms.model.entities.Clinic;
+import cms.model.entities.Enums;
 import cms.model.entities.User;
 import cms.utils.FontUtils;
 import cms.view.components.StatusRenderer;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.HierarchyEvent;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * A JPanel for Super Admins to perform CRUD (Create, Read, Update, Delete)
@@ -24,7 +24,7 @@ public class ClinicPanel extends JPanel {
 
     // --- UI Components ---
     private JTextField tfCode, tfName, tfEmail, tfPhone, tfAddress;
-    private JComboBox<Clinic.Status> cbStatus;
+    private JComboBox<Enums.Status> cbStatus;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnCreateAdmin;
     private JTable table;
     private DefaultTableModel model;
@@ -95,7 +95,7 @@ public class ClinicPanel extends JPanel {
         tfEmail = new JTextField();
         tfPhone = new JTextField();
         tfAddress = new JTextField();
-        cbStatus = new JComboBox<>(Clinic.Status.values());
+        cbStatus = new JComboBox<>(new Enums.Status[] { Enums.Status.Active, Enums.Status.Suspended });
 
         formPanel.add(new JLabel("Clinic Code:"));
         formPanel.add(tfCode);
@@ -128,10 +128,10 @@ public class ClinicPanel extends JPanel {
 
         btnCreateAdmin.setVisible(false); // Hide by default
 
-        styleButton(btnAdd, new Color(40, 167, 69));      // Green
-        styleButton(btnUpdate, new Color(23, 162, 184));  // Blue
-        styleButton(btnDelete, new Color(220, 53, 69));   // Red
-        styleButton(btnClear, new Color(108, 117, 125));  // Gray
+        styleButton(btnAdd, new Color(40, 167, 69)); // Green
+        styleButton(btnUpdate, new Color(23, 162, 184)); // Blue
+        styleButton(btnDelete, new Color(220, 53, 69)); // Red
+        styleButton(btnClear, new Color(108, 117, 125)); // Gray
         styleButton(btnCreateAdmin, new Color(255, 193, 7)); // Yellow
 
         buttonPanel.add(btnAdd);
@@ -150,7 +150,7 @@ public class ClinicPanel extends JPanel {
      */
     private JTable createTable() {
         model = new DefaultTableModel(
-                new String[]{"ID", "Code", "Name", "Email", "Phone", "Address", "Status"}, 0) {
+                new String[] { "ID", "Code", "Name", "Email", "Phone", "Address", "Status" }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false; // Make table cells non-editable
@@ -175,7 +175,7 @@ public class ClinicPanel extends JPanel {
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(0).setPreferredWidth(40); // Make ID column smaller
-        
+
         table.getColumnModel().getColumn(6).setCellRenderer(new StatusRenderer());
 
         return table;
@@ -250,12 +250,15 @@ public class ClinicPanel extends JPanel {
             tfEmail.setText(valueOrEmpty(model.getValueAt(selectedRow, 3)));
             tfPhone.setText(valueOrEmpty(model.getValueAt(selectedRow, 4)));
             tfAddress.setText(valueOrEmpty(model.getValueAt(selectedRow, 5)));
-            cbStatus.setSelectedItem(valueOrEmpty(model.getValueAt(selectedRow, 6)));
+
+            Enums.Status selectedStatus = (Enums.Status) model.getValueAt(selectedRow, 6);
+            cbStatus.setSelectedItem(selectedStatus);
 
             // Conditionally show the "Create Admin" button
             int clinicId = (int) model.getValueAt(selectedRow, 0);
             boolean adminExists = clinicDAO.hasAdmin(clinicId);
-            btnCreateAdmin.setVisible(!adminExists);
+            boolean shouldShowButton = !adminExists && (selectedStatus == Enums.Status.Active);
+            btnCreateAdmin.setVisible(shouldShowButton);
         }
     }
 
@@ -272,9 +275,9 @@ public class ClinicPanel extends JPanel {
         model.setRowCount(0); // Clear existing data
         List<Clinic> list = clinicDAO.getClinicsPage(page, pageSize);
         for (Clinic c : list) {
-            model.addRow(new Object[]{
-                c.getClinicId(), c.getClinicCode(), c.getClinicName(),
-                c.getEmail(), c.getPhone(), c.getAddress(), c.getStatus()
+            model.addRow(new Object[] {
+                    c.getClinicId(), c.getClinicCode(), c.getClinicName(),
+                    c.getEmail(), c.getPhone(), c.getAddress(), c.getStatus()
             });
         }
         lblPage.setText("Page " + currentPage + " of " + totalPages);
@@ -288,7 +291,8 @@ public class ClinicPanel extends JPanel {
      */
     private void addClinic() {
         if (tfCode.getText().isBlank() || tfName.getText().isBlank() || tfEmail.getText().isBlank()) {
-            JOptionPane.showMessageDialog(this, "Clinic Code, Name, and Email are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Clinic Code, Name, and Email are required.", "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -298,7 +302,7 @@ public class ClinicPanel extends JPanel {
         c.setEmail(tfEmail.getText());
         c.setPhone(tfPhone.getText());
         c.setAddress(tfAddress.getText());
-        c.setStatus((Clinic.Status) cbStatus.getSelectedItem());
+        c.setStatus((Enums.Status) cbStatus.getSelectedItem());
 
         int newClinicId = clinicDAO.addClinic(c);
 
@@ -313,7 +317,8 @@ public class ClinicPanel extends JPanel {
                 superAdminDAO.addAdmin(newAdmin);
                 JOptionPane.showMessageDialog(this, "Clinic and first Admin created successfully!");
             } else {
-                JOptionPane.showMessageDialog(this, "Clinic created, but first Admin was not. You can add one later.", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Clinic created, but first Admin was not. You can add one later.",
+                        "Warning", JOptionPane.WARNING_MESSAGE);
             }
 
             refreshClinics(currentPage);
@@ -334,7 +339,8 @@ public class ClinicPanel extends JPanel {
     private void updateClinic() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a clinic to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a clinic to update.", "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -347,7 +353,7 @@ public class ClinicPanel extends JPanel {
         c.setEmail(tfEmail.getText());
         c.setPhone(tfPhone.getText());
         c.setAddress(tfAddress.getText());
-        c.setStatus((Clinic.Status) cbStatus.getSelectedItem());
+        c.setStatus((Enums.Status) cbStatus.getSelectedItem());
 
         clinicDAO.updateClinic(c);
         loadClinicsPage(currentPage);
@@ -360,7 +366,8 @@ public class ClinicPanel extends JPanel {
     private void deleteClinic() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a clinic to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a clinic to delete.", "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -433,10 +440,10 @@ public class ClinicPanel extends JPanel {
      * Styles a JButton with a solid background color and a hover effect.
      *
      * @param button The button to style.
-     * @param color The base color for the button.
+     * @param color  The base color for the button.
      */
     private void styleButton(JButton button, Color color) {
-        button.setFont(FontUtils.getEmojiFont(Font.BOLD, 14));
+        button.setFont(FontUtils.getEmojiFont(Font.BOLD, 12));
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
