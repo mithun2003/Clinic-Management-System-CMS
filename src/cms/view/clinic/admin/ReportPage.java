@@ -13,6 +13,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
@@ -125,7 +127,7 @@ public class ReportPage extends JPanel {
         JFreeChart barChart = ChartFactory.createBarChart(
                 "New Patients (Last 30 Days)", "Date", "Number of New Patients",
                 dataset, PlotOrientation.VERTICAL, false, true, false);
-        styleChart(barChart);
+        styleBarChart(barChart);
         return new ChartPanel(barChart);
     }
 
@@ -147,11 +149,35 @@ public class ReportPage extends JPanel {
     // --- Styling Helpers ---
     private void styleChart(JFreeChart chart) {
         chart.setBackgroundPaint(Color.WHITE);
+        chart.getTitle().setFont(FontUtils.getUiFont(Font.BOLD, 18));
+
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint(new Color(248, 249, 250));
-        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
         plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-        chart.getTitle().setFont(FontUtils.getUiFont(Font.BOLD, 16));
+        plot.setOutlinePaint(null); // Remove the plot border
+
+        // Make axis labels smaller
+        plot.getDomainAxis().setLabelFont(FontUtils.getUiFont(Font.PLAIN, 12));
+        plot.getDomainAxis().setTickLabelFont(FontUtils.getUiFont(Font.PLAIN, 10));
+        plot.getRangeAxis().setLabelFont(FontUtils.getUiFont(Font.PLAIN, 12));
+    }
+
+    /**
+     * Applies specific styling to a Bar Chart to remove gradients and set colors.
+     */
+    private void styleBarChart(JFreeChart chart) {
+        // First, apply the common styles
+        styleChart(chart);
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+
+        // 👇 THIS IS THE KEY FIX: Disable the ugly gradient effect
+        renderer.setBarPainter(new StandardBarPainter());
+
+        // Set a nice, solid color for the bars
+        renderer.setSeriesPaint(0, new Color(23, 162, 184)); // A nice blue/teal
+        renderer.setShadowVisible(false); // Remove shadows
     }
 
     private void stylePieChart(JFreeChart chart) {

@@ -3,11 +3,14 @@ package cms.view.login;
 import cms.controller.AuthController;
 import cms.controller.AuthResult;
 import cms.model.entities.User;
+import cms.utils.FontUtils;
 import cms.utils.TitleBarManager;
 import cms.view.components.PlaceholderTextField;
-import cms.view.clinic.admin.Dashboard;
+import cms.view.clinic.admin.ClinicAdminDashboard;
+import cms.view.clinic.doctor.DoctorDashboard;
 // import cms.view.doctor.DoctorDashboardView;
 // import cms.view.receptionist.ReceptionistDashboardView;
+import cms.view.clinic.receptionist.ReceptionistDashboard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -88,7 +91,9 @@ public class ClinicLoginView extends JFrame {
     /**
      * Attaches all event listeners for this view.
      */
-    private void initListeners() { btnLogin.addActionListener(_ -> doLogin()); }
+    private void initListeners() {
+        btnLogin.addActionListener(_ -> doLogin());
+    }
 
     /**
      * Applies a modern, consistent style to the login button.
@@ -96,7 +101,7 @@ public class ClinicLoginView extends JFrame {
      * @param button The JButton to be styled.
      */
     private void styleLoginButton(JButton button) {
-        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setFont(FontUtils.getUiFont(Font.BOLD, 16));
         button.setForeground(Color.WHITE);
         button.setBackground(new Color(0, 102, 102));
         button.setFocusPainted(false);
@@ -106,10 +111,14 @@ public class ClinicLoginView extends JFrame {
         // Add hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) { button.setBackground(new Color(0, 128, 128)); }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 128, 128));
+            }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) { button.setBackground(new Color(0, 102, 102)); }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 102, 102));
+            }
         });
     }
 
@@ -127,16 +136,15 @@ public class ClinicLoginView extends JFrame {
         AuthResult result = controller.login(clinicCode, username, password);
         if (result.isSuccess()) {
             User user = result.getUser();
+            System.out.println(user.getRole());
             // Route to the correct dashboard based on the user's role
             switch (user.getRole().name()) {
-            case "ADMIN" -> new Dashboard(user).setVisible(true);
-            case "DOCTOR" -> // Replace with: new DoctorDashboardView(user).setVisible(true);
-                    JOptionPane.showMessageDialog(this, "Doctor Dashboard is under construction.");
-            case "RECEPTIONIST" -> // Replace with: new ReceptionistDashboardView(user).setVisible(true);
-                    JOptionPane.showMessageDialog(this, "Receptionist Dashboard is under construction.");
-            default -> JOptionPane.showMessageDialog(this,
-                    "Login successful, but no dashboard is available for your role.", "Info",
-                    JOptionPane.INFORMATION_MESSAGE);
+                case "ADMIN" -> new ClinicAdminDashboard(user).setVisible(true);
+                case "DOCTOR" -> new DoctorDashboard(user).setVisible(true);
+                case "RECEPTIONIST" -> new ReceptionistDashboard(user).setVisible(true);
+                default -> JOptionPane.showMessageDialog(this,
+                        "Login successful, but no dashboard is available for your role.", "Info",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
             dispose(); // Close the login window
         } else {

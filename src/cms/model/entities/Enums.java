@@ -4,7 +4,8 @@ package cms.model.entities;
 public final class Enums {
 
     // Private constructor to prevent instantiation
-    private Enums() {}
+    private Enums() {
+    }
 
     public static enum Status {
         Active, Inactive, Suspended, Blocked
@@ -13,4 +14,13 @@ public final class Enums {
     public static enum Role {
         ADMIN, DOCTOR, RECEPTIONIST
     }
+
+    public static enum AppointmentStatus {
+        Scheduled, Completed, Cancelled
+    }
+
+    public static enum BillingStatus {
+        Paid, Unpaid
+    }
+
 }

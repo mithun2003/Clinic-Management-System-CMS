@@ -6,7 +6,7 @@ import cms.view.components.SidebarButton;
 import cms.view.login.ClinicLoginView;
 import javax.swing.*;
 
-public class Dashboard extends DashboardTemplate {
+public class ClinicAdminDashboard extends DashboardTemplate {
 
     // --- Components specific to this dashboard ---
     private SidebarButton btnHome, btnManageStaff, btnSpecializations, btnReports, btnSettings;
@@ -21,7 +21,7 @@ public class Dashboard extends DashboardTemplate {
     // --- State ---
     private final User loggedInAdmin;
 
-    public Dashboard(User admin) {
+    public ClinicAdminDashboard(User admin) {
         this.loggedInAdmin = admin;
         buildDashboard(getClinicName(loggedInAdmin) + " - Admin Dashboard");
     }
@@ -117,8 +117,6 @@ public class Dashboard extends DashboardTemplate {
         if (user != null && user.getClinic() != null && user.getClinic().getClinicName() != null) {
             return user.getClinic().getClinicName();
         }
-        // This is a fallback. To make it work reliably, your login DAO
-        // must fetch and set the Clinic object within the User object.
         return "Clinic";
     }
 }

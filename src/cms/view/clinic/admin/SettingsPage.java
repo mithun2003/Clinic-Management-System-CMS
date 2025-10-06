@@ -4,6 +4,8 @@ import cms.model.dao.UserDAO;
 import cms.model.entities.User;
 import cms.utils.FontUtils;
 import cms.utils.PasswordUtils;
+import cms.view.components.UIStyler;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -42,8 +44,7 @@ public class SettingsPage extends JPanel {
         border.setTitleColor(new Color(0, 102, 102));
         formPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        ));
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)));
         formPanel.setOpaque(false);
 
         // Add labels and fields to the form panel
@@ -66,7 +67,7 @@ public class SettingsPage extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setOpaque(false);
         btnUpdatePassword = new JButton("Update Password");
-        styleButton(btnUpdatePassword);
+        UIStyler.styleButton(btnUpdatePassword, (new Color(0, 102, 102)));
         btnUpdatePassword.addActionListener(_ -> updatePassword());
         buttonPanel.add(btnUpdatePassword);
 
@@ -74,15 +75,6 @@ public class SettingsPage extends JPanel {
 
         // Add the container to the main panel, which will center it
         add(formContainer);
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(0, 102, 102));
-        button.setForeground(Color.WHITE);
-        button.setFont(FontUtils.getUiFont(Font.BOLD, 14));
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void updatePassword() {
@@ -100,7 +92,8 @@ public class SettingsPage extends JPanel {
             return;
         }
 
-        // Validate the current password using the hash stored in the logged-in user object
+        // Validate the current password using the hash stored in the logged-in user
+        // object
         if (!PasswordUtils.checkPassword(current, loggedInAdmin.getPassword())) {
             JOptionPane.showMessageDialog(this, "Current password is incorrect.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -110,7 +103,8 @@ public class SettingsPage extends JPanel {
         String newHashedPassword = PasswordUtils.hashPassword(newPassword);
 
         if (userDAO.updateUserPassword(loggedInAdmin.getUserId(), newHashedPassword)) {
-            JOptionPane.showMessageDialog(this, "Password updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Password updated successfully!", "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
 
             // CRITICAL: Update the in-memory user object with the new hash
             loggedInAdmin.setPassword(newHashedPassword);
@@ -120,7 +114,8 @@ public class SettingsPage extends JPanel {
             pfNewPassword.setText("");
             pfConfirmPassword.setText("");
         } else {
-            JOptionPane.showMessageDialog(this, "Failed to update password. Please try again.", "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Failed to update password. Please try again.", "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

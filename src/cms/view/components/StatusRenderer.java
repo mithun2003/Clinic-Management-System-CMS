@@ -9,9 +9,9 @@ public class StatusRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
-                                                   boolean isSelected,
-                                                   boolean hasFocus,
-                                                   int row, int column) {
+            boolean isSelected,
+            boolean hasFocus,
+            int row, int column) {
         // Call the parent method first
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
@@ -43,6 +43,28 @@ public class StatusRenderer extends DefaultTableCellRenderer {
                     setForeground(Color.BLACK);
                     break;
             }
+        } else if (value instanceof Enums.AppointmentStatus status) {
+            switch (status) {
+                case Scheduled:
+                    setBackground(new Color(255, 193, 7)); // Yellow
+                    setForeground(Color.WHITE);
+                    setText(status.name());
+                    break;
+                case Completed:
+                    setBackground(new Color(34, 139, 34)); // Darker Green
+                    setForeground(Color.WHITE);
+                    setText(status.name());
+                    break;
+                case Cancelled:
+                    setBackground(new Color(220, 20, 60)); // Crimson Red
+                    setForeground(Color.WHITE);
+                    setText(status.name());
+                    break;
+
+                default:
+                    break;
+            }
+
         }
         return this;
     }

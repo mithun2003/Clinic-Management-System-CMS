@@ -175,8 +175,6 @@ public class UserDAO {
         // flow is usually better.
         String sql = "UPDATE users SET name = ?, username = ?, role = ?, status = ? WHERE user_id = ?";
         try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
-            System.out.println(user.toString());
-            System.out.println(user.getStatus());
             pst.setString(1, user.getName());
             pst.setString(2, user.getUsername());
             pst.setString(3, user.getRole().name());

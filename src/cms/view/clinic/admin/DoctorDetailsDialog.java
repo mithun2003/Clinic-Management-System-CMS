@@ -89,7 +89,6 @@ public class DoctorDetailsDialog extends JDialog {
 
     private void loadExistingData() {
         Doctor existingDoctor = doctorDAO.getDoctorByUserId(userId);
-        System.out.println(existingDoctor.getStatus());
         if (existingDoctor != null) {
             cbSpecialization.setSelectedItem(existingDoctor.getSpecialization());
             tfFee.setText(String.valueOf(existingDoctor.getConsultationFee()));

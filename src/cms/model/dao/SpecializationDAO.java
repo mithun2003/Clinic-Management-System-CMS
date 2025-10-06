@@ -81,7 +81,6 @@ public class SpecializationDAO {
     public boolean updateSpecialization(int specializationId, String newName,
                                         Enums.Status newStatus) {
         String sql = "UPDATE specializations SET name = ?, status = ? WHERE specialization_id = ?";
-        System.out.println(specializationId + newName + newStatus);
         try (Connection con = DBConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
             pst.setString(1, newName);
             pst.setString(2, newStatus.name());

@@ -8,19 +8,13 @@ import java.time.LocalDateTime;
  */
 public class Appointment {
 
-    public enum Status {
-        Scheduled,
-        Completed,
-        Cancelled
-    }
-
     private int appointmentId;
     private int patientId;    // Foreign key to patients
     private int doctorId;     // Foreign key to doctors
     private int clinicId;     // Foreign key to clinics
 
     private LocalDateTime appointmentDate;
-    private Status status;
+    private Enums.AppointmentStatus status;
     private String notes; // Initial notes from receptionist
 
     // --- Denormalized fields for easy display in UI tables ---
@@ -47,8 +41,8 @@ public class Appointment {
     public LocalDateTime getAppointmentDate() { return appointmentDate; }
     public void setAppointmentDate(LocalDateTime appointmentDate) { this.appointmentDate = appointmentDate; }
 
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public Enums.AppointmentStatus getStatus() { return status; }
+    public void setStatus(Enums.AppointmentStatus status) { this.status = status; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

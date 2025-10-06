@@ -2,6 +2,7 @@ package cms.view.login;
 
 import cms.controller.SuperAdminAuthController;
 import cms.model.entities.SuperAdmin;
+import cms.utils.FontUtils;
 import cms.utils.TitleBarManager;
 import cms.view.components.PlaceholderTextField;
 import cms.view.superadmin.SuperAdminDashboardView;
@@ -100,7 +101,7 @@ public class SuperAdminLoginView extends JFrame {
      * @param button The JButton to be styled.
      */
     private void styleLoginButton(JButton button) {
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setFont(FontUtils.getUiFont(Font.BOLD, 16));
         button.setForeground(Color.WHITE);
         button.setBackground(new Color(0, 102, 102));
         button.setFocusPainted(false);

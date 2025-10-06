@@ -77,34 +77,57 @@ public class DoctorDAO {
     }
 
     /**
-     * Fetches a single doctor's complete profile by their user_id.
-     * Used by the DoctorDetailsDialog to pre-fill the form for editing.
-     * 
-     * @param userId The ID of the user.
-     * @return A Doctor object, or null if not found.
-     */
-    public Doctor getDoctorByUserId(int userId) {
-        String sql = "SELECT * FROM doctors WHERE user_id = ?";
-        try (Connection con = DBConnection.getConnection();
-                PreparedStatement pst = con.prepareStatement(sql)) {
-            pst.setInt(1, userId);
-            ResultSet rs = pst.executeQuery();
-            if (rs.next()) {
-                Doctor doc = new Doctor();
-                doc.setDoctorId(rs.getInt("doctor_id"));
-                doc.setUserId(rs.getInt("user_id"));
-                doc.setSpecialization(rs.getString("specialization"));
-                doc.setConsultationFee(rs.getDouble("consultation_fee"));
-                doc.setSchedule(rs.getString("schedule"));
-                doc.setStatus(Enums.Status.valueOf(rs.getString("status")));
-                // You could also fetch and set the status here if needed in the entity
-                return doc;
-            }
-        } catch (Exception e) {
-            LoggerUtil.logError("Failed to get doctor details for user ID: " + userId, e);
+ * Fetches a single doctor's complete profile by their user_id,
+ * including related user details.
+ * 
+ * @param userId The ID of the user.
+ * @return A Doctor object populated with both doctor and user info, or null if not found.
+ */
+public Doctor getDoctorByUserId(int userId) {
+    String sql = """
+        SELECT d.*, u.name, u.role, u.username, u.status AS user_status
+        FROM doctors d
+        JOIN users u ON d.user_id = u.user_id
+        WHERE d.user_id = ?
+    """;
+
+    try (Connection con = DBConnection.getConnection();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, userId);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            Doctor doc = new Doctor();
+            doc.setDoctorId(rs.getInt("doctor_id"));
+            doc.setUserId(rs.getInt("user_id"));
+            doc.setSpecialization(rs.getString("specialization"));
+            doc.setConsultationFee(rs.getDouble("consultation_fee"));
+            doc.setSchedule(rs.getString("schedule"));
+            doc.setStatus(Enums.Status.valueOf(rs.getString("status")));
+            doc.setName(rs.getString("name")); // for quick access
+
+            // --- Build the User object ---
+            // User user = new User();
+            // user.setUserId(rs.getInt("user_id"));
+            // user.setName(rs.getString("name"));
+            // user.setRole(Enums.Role.valueOf(rs.getString("role")));
+            // user.setUsername(rs.getString("username"));
+            // user.setStatus(Enums.Status.valueOf(rs.getString("user_status")));
+
+            // // Attach user to doctor
+            // doc.setUser(user);
+
+            return doc;
         }
-        return null;
+
+    } catch (Exception e) {
+        LoggerUtil.logError("Failed to get doctor details for user ID: " + userId, e);
     }
+
+    return null;
+}
+
 
     /**
      * Checks if a record already exists in the 'doctors' table for a given user_id.

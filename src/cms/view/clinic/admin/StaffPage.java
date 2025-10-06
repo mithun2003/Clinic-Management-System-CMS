@@ -1,16 +1,18 @@
 package cms.view.clinic.admin;
 
 import cms.model.dao.DoctorDAO;
-import cms.model.dao.SpecializationDAO;
 import cms.model.dao.UserDAO;
 import cms.model.entities.Doctor;
 import cms.model.entities.Enums;
 import cms.model.entities.User;
 import cms.utils.FontUtils;
 import cms.utils.PasswordUtils;
+import cms.view.components.UIStyler;
 import cms.view.components.StatusRenderer;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -133,11 +135,11 @@ public class StaffPage extends JPanel {
         btnEditDoctorDetails = new JButton("Edit Doctor Details");
         btnEditDoctorDetails.setVisible(false);
 
-        styleButton(btnAdd, new Color(40, 167, 69)); // Green
-        styleButton(btnUpdate, new Color(23, 162, 184)); // Blue
-        styleButton(btnDelete, new Color(220, 53, 69)); // Red
-        styleButton(btnClear, new Color(108, 117, 125)); // Gray
-        styleButton(btnEditDoctorDetails, new Color(0, 102, 102));
+        UIStyler.styleButton(btnAdd, new Color(40, 167, 69)); // Green
+        UIStyler.styleButton(btnUpdate, new Color(23, 162, 184)); // Blue
+        UIStyler.styleButton(btnDelete, new Color(220, 53, 69)); // Red
+        UIStyler.styleButton(btnClear, new Color(108, 117, 125)); // Gray
+        UIStyler.styleButton(btnEditDoctorDetails, new Color(0, 102, 102));
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
@@ -157,28 +159,33 @@ public class StaffPage extends JPanel {
             }
         };
         table = new JTable(model);
+        UIStyler.styleTable(table);
+        UIStyler.centerAlignColumns(table, 0, 1, 2, 3);
+        UIStyler.setColumnWidths(table, Map.of(0, 40));
+        UIStyler.setStatusColumn(table, 5);
 
-        table.setRowHeight(30);
-        table.setFont(FontUtils.getUiFont(Font.PLAIN, 14));
-        table.setForeground(Color.DARK_GRAY);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // table.setRowHeight(30);
+        // table.setFont(FontUtils.getUiFont(Font.PLAIN, 14));
+        // table.setForeground(Color.DARK_GRAY);
+        // table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Style the table header
-        table.getTableHeader().setFont(FontUtils.getUiFont(Font.BOLD, 14));
-        table.getTableHeader().setBackground(new Color(0, 102, 102));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setReorderingAllowed(false);
+        // // Style the table header
+        // table.getTableHeader().setFont(FontUtils.getUiFont(Font.BOLD, 14));
+        // table.getTableHeader().setBackground(new Color(0, 102, 102));
+        // table.getTableHeader().setForeground(Color.WHITE);
+        // table.getTableHeader().setReorderingAllowed(false);
 
-        // Center align text in the ID and Code columns
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-        table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-        table.getColumnModel().getColumn(0).setPreferredWidth(40); // Make ID column smaller
+        // // Center align text in the ID and Code columns
+        // DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        // centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        // table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        // table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+        // table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+        // table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+        // table.getColumnModel().getColumn(0).setPreferredWidth(40); // Make ID column
+        // smaller
 
-        table.getColumnModel().getColumn(5).setCellRenderer(new StatusRenderer());
+        // table.getColumnModel().getColumn(5).setCellRenderer(new StatusRenderer());
         return table;
     }
 
@@ -430,35 +437,6 @@ public class StaffPage extends JPanel {
         table.clearSelection();
         pfPassword.setEnabled(true); // Re-enable password field
         btnEditDoctorDetails.setVisible(false);
-    }
-
-    /**
-     * Styles a JButton with a solid background color and a hover effect.
-     *
-     * @param button The button to style.
-     * @param color  The base color for the button.
-     */
-    private void styleButton(JButton button, Color color) {
-        button.setFont(FontUtils.getEmojiFont(Font.BOLD, 14));
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Padding
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Optional: Add a simple hover effect
-        Color darker = color.darker();
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(darker);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(color);
-            }
-        });
     }
 
 }

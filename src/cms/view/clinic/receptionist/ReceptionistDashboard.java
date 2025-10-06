@@ -5,23 +5,24 @@ import cms.view.components.DashboardTemplate;
 import cms.view.components.SidebarButton;
 import cms.view.login.ClinicLoginView;
 
-import java.awt.*;
 import javax.swing.*;
 
-public class Dashboard extends DashboardTemplate {
+public class ReceptionistDashboard extends DashboardTemplate {
 
     // --- Components specific to this dashboard ---
-    private SidebarButton btnHome, btnPatients, btnAppointments, btnBilling, btnLogout;
+    private SidebarButton btnHome, btnPatients, btnAppointments, btnBilling;
 
-    private PatientPage patientPanel; // The main panel for this role
-    // Other panels will be added later
+    private HomePage homePanel;
+    private PatientPage patientPanel;
+    private AppointmentPage appointmentPanel;
+    private BillingPage billingPanel;
 
     // --- State ---
     private final User loggedInReceptionist;
 
-    public Dashboard(User receptionist) {
+    public ReceptionistDashboard(User receptionist) {
         this.loggedInReceptionist = receptionist;
-        buildDashboard(getClinicName(receptionist) + " - Admin Dashboard");
+        buildDashboard(getClinicName(receptionist) + " - Receptionist Dashboard");
 
         // The parent constructor calls the abstract methods to build the dashboard
     }
@@ -32,32 +33,26 @@ public class Dashboard extends DashboardTemplate {
         btnPatients = new SidebarButton("👥 Patients");
         btnAppointments = new SidebarButton("📅 Appointments");
         btnBilling = new SidebarButton("💳 Billing");
-        btnLogout = new SidebarButton("🚪 Logout", true);
 
-        sidebar.add(btnHome);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(btnPatients);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(btnAppointments);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(btnBilling);
-        sidebar.add(Box.createVerticalGlue());
-        sidebar.add(btnLogout);
+        mainNavPanel.add(btnHome);
+        mainNavPanel.add(btnPatients);
+        mainNavPanel.add(btnAppointments);
+        mainNavPanel.add(btnBilling);
     }
 
     @Override
     protected void addContentPanels() {
         // Create the panels for this dashboard
+        homePanel = new HomePage(loggedInReceptionist);
         patientPanel = new PatientPage(loggedInReceptionist.getClinicId());
-
-        JLabel homePlaceholder = new JLabel("Welcome, " + loggedInReceptionist.getName(), SwingConstants.CENTER);
-        JLabel appointmentsPlaceholder = new JLabel("Appointment Scheduling Panel will go here.", SwingConstants.CENTER);
-        JLabel billingPlaceholder = new JLabel("Billing Panel will go here.", SwingConstants.CENTER);
-
-        contentPanel.add(homePlaceholder, "Home");
+        appointmentPanel = new AppointmentPage(loggedInReceptionist.getClinicId());
+        billingPanel = new BillingPage(loggedInReceptionist.getClinicId());
+        
+        
+        contentPanel.add(homePanel, "Home");
         contentPanel.add(patientPanel, "Patients");
-        contentPanel.add(appointmentsPlaceholder, "Appointments");
-        contentPanel.add(billingPlaceholder, "Billing");
+        contentPanel.add(appointmentPanel, "Appointments");
+        contentPanel.add(billingPanel, "Billing");
     }
 
     @Override
@@ -65,6 +60,7 @@ public class Dashboard extends DashboardTemplate {
         btnHome.addActionListener(_ -> {
             btnHome.selectInSidebar();
             cardLayout.show(contentPanel, "Home");
+            homePanel.refreshData();
         });
 
         btnPatients.addActionListener(_ -> {
@@ -77,11 +73,13 @@ public class Dashboard extends DashboardTemplate {
         btnAppointments.addActionListener(_ -> {
             btnAppointments.selectInSidebar();
             cardLayout.show(contentPanel, "Appointments");
+            appointmentPanel.refreshData();
         });
 
         btnBilling.addActionListener(_ -> {
             btnBilling.selectInSidebar();
             cardLayout.show(contentPanel, "Billing");
+            billingPanel.refreshBillList();
         });
 
         btnLogout.addActionListener(_ -> {
@@ -102,9 +100,26 @@ public class Dashboard extends DashboardTemplate {
 
     // Helper to safely get the clinic name for the title
     private static String getClinicName(User user) {
+        System.out.println(user.getName());
+        System.out.println(user.getClinic().getClinicId());
+        System.out.println(user.getClinic().getClinicName());
         if (user != null && user.getClinic() != null) {
             return user.getClinic().getClinicName();
         }
         return "Clinic";
+    }
+
+    /**
+     * Switches to the Appointment page and pre-selects a patient for booking.
+     * This method is called from the PatientPage.
+     * 
+     * @param patientId The ID of the patient to be selected.
+     */
+    public void showAppointmentPanelForPatient(int patientId) {
+        btnAppointments.selectInSidebar();
+        cardLayout.show(contentPanel, "Appointments");
+
+        appointmentPanel.refreshData();
+        appointmentPanel.setPatientForBooking(patientId);
     }
 }

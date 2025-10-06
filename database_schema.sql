@@ -9,7 +9,7 @@ USE clinicdb;
 -- Drop tables if they exist to start fresh (useful for development)
 DROP TABLE IF EXISTS specialization;
 DROP TABLE IF EXISTS billing;
-DROP TABLE IF EXISTS prescriptions;
+-- DROP TABLE IF EXISTS prescriptions;
 DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS patients;
 DROP TABLE IF EXISTS doctors;
@@ -42,8 +42,6 @@ CREATE TABLE clinics (
   status ENUM('Active', 'Suspended') NOT NULL DEFAULT 'Active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  created_by INT,
-  FOREIGN KEY (created_by) REFERENCES super_admins(super_admin_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------
@@ -88,7 +86,6 @@ CREATE TABLE patients (
   dob DATE,
   gender ENUM('Male', 'Female', 'Other'),
   phone VARCHAR(20),
-  email VARCHAR(100),
   address VARCHAR(255),
   blood_group ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'),
   allergies TEXT,
@@ -119,14 +116,14 @@ CREATE TABLE appointments (
 -- Table `prescriptions`
 -- Stores prescription details for a completed appointment.
 -- -----------------------------------------------------
-CREATE TABLE prescriptions (
-    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
-    appointment_id INT NOT NULL UNIQUE, -- One prescription per appointment
-    doctor_notes TEXT COMMENT 'Diagnosis and notes from the doctor',
-    medicine_list TEXT NOT NULL COMMENT 'List of prescribed medicines and dosage',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- CREATE TABLE prescriptions (
+--     prescription_id INT AUTO_INCREMENT PRIMARY KEY,
+--     appointment_id INT NOT NULL UNIQUE, -- One prescription per appointment
+--     doctor_notes TEXT COMMENT 'Diagnosis and notes from the doctor',
+--     medicine_list TEXT NOT NULL COMMENT 'List of prescribed medicines and dosage',
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE
+-- ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------
 -- Table `specializations`
