@@ -26,8 +26,8 @@ public class DoctorDAO {
             pst.setInt(1, doctor.getUserId());
             pst.setString(2, doctor.getSpecialization());
             pst.setDouble(3, doctor.getConsultationFee());
-            pst.setString(4, doctor.getStatus().name() != null ? doctor.getStatus().name() : "Active");
-            pst.setString(5, doctor.getSchedule());
+            pst.setString(4, doctor.getSchedule());
+            pst.setString(5, doctor.getStatus().name() != null ? doctor.getStatus().name() : "Active");
             return pst.executeUpdate() > 0;
         } catch (Exception e) {
             LoggerUtil.logError("Failed to add doctor details for user ID: " + doctor.getUserId(), e);

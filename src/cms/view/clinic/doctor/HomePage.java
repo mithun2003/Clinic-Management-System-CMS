@@ -2,6 +2,7 @@ package cms.view.clinic.doctor;
 
 import cms.model.dao.ReportDAO;
 import cms.model.entities.Doctor;
+import cms.utils.FontUtils;
 import cms.view.components.UIStyler;
 import cms.view.components.UIStyler.StatCardPanel;
 
